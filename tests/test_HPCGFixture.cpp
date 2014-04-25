@@ -17,10 +17,14 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor) {
 
 BOOST_AUTO_TEST_CASE(CustomSizes) {
   char** options = new char*[4];
-  options[0] = "test_HPCGFixture";
-  options[1] = "--nx=64";
-  options[2] = "--ny=128";
-  options[3] = "--nz=96";
+  char optZero[] = "test_HPCGFixture";
+  options[0] = optZero;
+  char optOne[] = "--nx=64";
+  options[1] = optOne; 
+  char optTwo[] = "--ny=128";
+  options[2] = optTwo;
+  char optThree[] = "--nz=96";
+  options[3] = optThree;
   HPCG_Fixture fixture(3, options);
   delete [] options;
   const Geometry* geometry = fixture.A.geom;

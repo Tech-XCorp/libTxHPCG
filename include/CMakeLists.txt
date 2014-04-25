@@ -5,6 +5,7 @@ set(TxHPCG_HEADERS
     ComputeRestriction.hpp
     ComputeSPMV.hpp
     ComputeSYMGS.hpp
+    ExchangeHalo.hpp
     MatrixOptimizationDataTx.hpp
     VectorOptimizationDataTx.hpp
     chkcudaerror.hpp

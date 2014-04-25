@@ -8,7 +8,7 @@ set(TxHPCG_SOURCES
     MatrixOptimizationDataTx.cpp
     VectorOptimizationDataTx.cpp
     OptimizeProblem.cpp
-    ${HPCG_SOURCE_DIR}/ExchangeHalo.cpp
+    ExchangeHalo.cpp
     ${HPCG_SOURCE_DIR}/GenerateCoarseProblem.cpp
     )
 set(TxHPCG_SOURCES_CU

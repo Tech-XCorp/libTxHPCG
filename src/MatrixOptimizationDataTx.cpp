@@ -171,7 +171,8 @@ int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
   double* x_dev = 0;
   double* y_dev = 0;
 #ifndef HPCG_NOMPI
-  ExchangeHalo(A, x);
+  DataTransfer transfer = BeginExchangeHalo(A, x);
+  EndExchangeHalo(A, x, transfer);
   x_dev = transferDataToGPU(x);
 #endif
   if (copyIn) {
@@ -202,7 +203,8 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
   const double* r_dev = 0;  
   double* x_dev = 0;
 #ifndef HPCG_NOMPI
-  ExchangeHalo(A, x);
+  DataTransfer transfer = BeginExchangeHalo(A, x);
+  EndExchangeHalo(A, x, transfer);
   x_dev = transferDataToGPU(x);
 #endif
   if (copyIn) {

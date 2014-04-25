@@ -1,0 +1,2 @@
+// defined if we have MPI
+#cmakedefine HAVE_MPI

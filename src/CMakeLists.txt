@@ -1,0 +1,21 @@
+set(TxHPCG_SOURCES
+    CPCSR.cpp
+    ComputeMG.cpp
+    ComputeProlongation.cpp
+    ComputeRestriction.cpp
+    ComputeSPMV.cpp
+    ComputeSYMGS.cpp
+    MatrixOptimizationDataTx.cpp
+    VectorOptimizationDataTx.cpp
+    OptimizeProblem.cpp
+    ${HPCG_SOURCE_DIR}/ExchangeHalo.cpp
+    ${HPCG_SOURCE_DIR}/GenerateCoarseProblem.cpp
+    )
+set(TxHPCG_SOURCES_CU
+    Kernels.cu
+   )
+cuda_add_library(TxHPCG
+    ${TxHPCG_SOURCES}
+    ${TxHPCG_SOURCES_CU}
+    )
+install(TARGETS TxHPCG DESTINATION lib)

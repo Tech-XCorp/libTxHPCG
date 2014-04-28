@@ -45,9 +45,9 @@ int ComputeMG(const SparseMatrix& A, const Vector& r, Vector& x, bool copyIn,
   int ierr = 0;
   if (A.mgData!=0) { // Go to next coarse level if defined
     int numberOfPresmootherSteps = A.mgData->numberOfPresmootherSteps;
-    ierr += ComputeSYMGS(A, r, x, numberOfPresmootherSteps, copyIn, true);
+    ierr += ComputeSYMGS(A, r, x, numberOfPresmootherSteps, copyIn, false);
     if (ierr!=0) return(ierr);
-    ierr = ComputeSPMV(A, x, *A.mgData->Axf, true, false); if (ierr!=0) return(ierr);
+    ierr = ComputeSPMV(A, x, *A.mgData->Axf, false, false); if (ierr!=0) return(ierr);
     // Perform restriction operation using simple injection
     ierr = ComputeRestriction(A, r, false, false);  if (ierr!=0) return(ierr);
     ierr = ComputeMG(*A.Ac,*A.mgData->rc, *A.mgData->xc, false, false);  if (ierr!=0) return(ierr);

@@ -204,20 +204,17 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
                                            bool copyIn, bool copyOut) {
   const double* r_dev = 0;  
   double* x_dev = 0;
-#ifndef HPCG_NOMPI
-  DataTransfer transfer = BeginExchangeHalo(A, x);
-  EndExchangeHalo(A, x, transfer);
-  x_dev = transferDataToGPU(x);
-#endif
   if (copyIn) {
-#ifdef HPCG_NOMPI
     x_dev = transferDataToGPU(x);
-#endif
     r_dev = transferDataToGPU(r);
   } else {
     x_dev = ((VectorOptimizationDataTx*)x.optimizationData)->devicePtr;
     r_dev = ((VectorOptimizationDataTx*)r.optimizationData)->devicePtr;
   }
+#ifndef HPCG_NOMPI
+  DataTransfer transfer = BeginExchangeHalo(A, x);
+  EndExchangeHalo(A, x, transfer);
+#endif
   launchDeviceCopy(workvector, r_dev, r.localLength);
   scatterFromHalo.spmv(x_dev, workvector, -1, 1);
   gelusStatus_t err =
@@ -226,7 +223,6 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
   CHKGELUSERR(err);
   if (copyOut) {
     transferDataFromGPU(x);
-    transferDataFromGPU(r);
   }
   return 0;
 }

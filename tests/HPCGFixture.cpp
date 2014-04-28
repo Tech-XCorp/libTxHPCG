@@ -44,4 +44,5 @@ HPCG_Fixture::HPCG_Fixture(int argc, char* argv[]) {
 HPCG_Fixture::~HPCG_Fixture() {
 }
 
-char* HPCG_Fixture::defaultArgv[] = {"HPCGFixture"};
+static char executableName[] = "HPCGFixture";
+char* HPCG_Fixture::defaultArgv[] = {executableName};

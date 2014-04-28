@@ -43,24 +43,27 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   std::vector<local_int_t> i(A.localNumberOfRows + 1, 0);
   std::vector<local_int_t> j(A.localNumberOfNonzeros, 0);
   std::vector<double> a(A.localNumberOfNonzeros, 0);
+  scatterFromHalo.setNumRows(A.localNumberOfRows);
+  scatterFromHalo.setNumCols(A.localNumberOfColumns);
+  scatterFromHalo.clear();
+  // We're splitting the matrix into diagonal and off-diagonal block to
+  // enable overlapping of computation and communication.
   for (local_int_t m = 0; m < A.localNumberOfRows; ++m) {
-    i[m + 1] = i[m] + A.nonzerosInRow[m];
-  }
-  local_int_t index = 0;
-  for (local_int_t m = 0; m < A.localNumberOfRows; ++m) {
+    local_int_t nonzerosInRow = 0;
     for (local_int_t n = 0; n < A.nonzerosInRow[m]; ++n) {
-      j[index] = A.mtxIndL[m][n];
-      ++index;
+      local_int_t col = A.mtxIndL[m][n];
+      if (col < A.localNumberOfRows) {
+        j.push_back(col);
+        a.push_back(A.matrixValues[m][n]);
+        ++nonzerosInRow;
+      } else {
+        scatterFromHalo.addEntry(m, col, A.matrixValues[m][n]);
+      }
     }
-  }
-  index = 0;
-  for (local_int_t m = 0; m < A.localNumberOfRows; ++m) {
-    for (local_int_t n = 0; n < A.nonzerosInRow[m]; ++n) {
-      a[index] = A.matrixValues[m][n];
-      ++index;
-    }
+    i[m + 1] = i[m] + nonzerosInRow;
   }
 
+  // Setup SpMV data on GPU
   cudaError_t err = cudaSuccess;
   int* i_d;
   err = cudaMalloc((void**)&i_d, i.size() * sizeof(i[0]));
@@ -77,7 +80,6 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   CHKCUDAERR(err);
   err = cudaMemcpy(a_d, &a[0], a.size() * sizeof(a[0]), cudaMemcpyHostToDevice);
   CHKCUDAERR(err);
-
   cusparseStatus_t cerr = CUSPARSE_STATUS_SUCCESS;
   cerr = cusparseCreateMatDescr(&matDescr);
   CHKCUSPARSEERR(cerr);
@@ -93,29 +95,6 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   CHKCUSPARSEERR(cerr);
 
   // Set up the GS data.
-  // Need to extract the local portion of the matrix for gelus.
-  // The part for scattering from the halo into the local portion of the
-  // vector goes into scatterFromHalo.
-  j.resize(0);
-  a.resize(0);
-  scatterFromHalo.setNumRows(A.localNumberOfRows);
-  scatterFromHalo.setNumCols(A.localNumberOfColumns);
-  scatterFromHalo.clear();
-  for (local_int_t m = 0; m < A.localNumberOfRows; ++m) {
-    local_int_t nonzerosInRow = 0;
-    for (local_int_t n = 0; n < A.nonzerosInRow[m]; ++n) {
-      local_int_t col = A.mtxIndL[m][n];
-      if (col < A.localNumberOfRows) {
-        j.push_back(col);
-        a.push_back(A.matrixValues[m][n]);
-        ++nonzerosInRow;
-      } else {
-        scatterFromHalo.addEntry(m, col, A.matrixValues[m][n]);
-      }
-    }
-    i[m + 1] = i[m] + nonzerosInRow;
-  }
-
   gelusStatus_t gerr = GELUS_STATUS_SUCCESS;
   gelusSolveDescription_t solveDescr;
   gerr = gelusCreateSolveDescr(&solveDescr);

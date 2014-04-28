@@ -54,4 +54,9 @@ DataTransfer BeginExchangeHalo(const SparseMatrix & A, Vector & x);
   */
 void EndExchangeHalo(const SparseMatrix & A, Vector & x, DataTransfer transfer);
 
+/**
+ * For convenience we provide a declaration of the original ExchangeHalo
+ * */
+void ExchangeHalo(const SparseMatrix& A, Vector& x);
+
 #endif // EXCHANGEHALO_HPP

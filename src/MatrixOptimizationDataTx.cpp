@@ -12,6 +12,9 @@ MatrixOptimizationDataTx::MatrixOptimizationDataTx()
       workvector(0) {
   cusparseStatus_t err = cusparseCreate(&handle);
   CHKCUSPARSEERR(err);
+#ifndef HPCG_NOMPI
+  elementsToSend = 0;
+#endif
 }
 
 MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
@@ -37,6 +40,9 @@ MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
   if (workvector) {
     CHKCUDAERR(cudaFree(workvector));
   }
+#ifndef HPCG_NOMPI
+  CHKCUDAERR(cudaFree(elementsToSend));
+#endif
 }
 
 int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
@@ -93,6 +99,14 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
                           matDescr, a_d, i_d, j_d, localMatrix, 27,
                           CUSPARSE_HYB_PARTITION_USER);
   CHKCUSPARSEERR(cerr);
+
+#ifndef HPCG_NOMPI
+  err = cudaMalloc((void**)&elementsToSend,
+                   A.totalToBeSent * sizeof(*elementsToSend));
+  CHKCUDAERR(err);
+  err = cudaMemcpy(elementsToSend, A.elementsToSend, A.totalToBeSent * sizeof(*elementsToSend), cudaMemcpyHostToDevice);
+  CHKCUDAERR(err);
+#endif
 
   // Set up the GS data.
   gelusStatus_t gerr = GELUS_STATUS_SUCCESS;

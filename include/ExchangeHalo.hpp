@@ -30,7 +30,8 @@ typedef struct DataTransfer_* DataTransfer;
   @param[in]    A The known system matrix
   @param[inout] x On entry: the local vector entries followed by entries
                 to be communicated. It is save to modify the local data
-                after BeginExchangeHalo returns.
+                after BeginExchangeHalo returns.  It is assumed that the
+                GPU data in x is up to date.
   @return       A handle to internal data transfer information needed
                 for completing the halo exchange by means of
                 EndExchangeHalo.
@@ -44,7 +45,8 @@ DataTransfer BeginExchangeHalo(const SparseMatrix & A, Vector & x);
  
    @param[in]    A The known system matrix
    @param[inout] x On exit: the local vector entries followed by entries
-                 received from other processes.
+                 received from other processes.  Only the data on the
+                 GPU is updated.
    @param[in]    transfer Handle to data transfer data obtained by call
                  to BeginExchangeHalo.
 

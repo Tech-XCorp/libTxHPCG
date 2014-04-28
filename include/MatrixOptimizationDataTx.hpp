@@ -41,6 +41,9 @@ class MatrixOptimizationDataTx {
   CPCSR scatterFromHalo;                //!< sparse matrix needed for receiving 
                                         //   data from other processes
   local_int_t* f2c;                     //!< restriction/prolongation operator
+#ifndef HPCG_NOMPI
+  local_int_t* elementsToSend;          //!< Indices of elements to send
+#endif
 
   double* workvector;                   //!< Work space for SYMGS
 

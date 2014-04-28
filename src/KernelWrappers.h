@@ -24,5 +24,25 @@ void launchZeroVector(double* v, int n);
  * */
 void launchDeviceCopy(double* dst, const double* src, int N);
 
+/**
+ * @brief Scatter values into a contiguous array
+ *
+ * This can be used to prepare for a scatter during the halo exchange.
+ * Duplicate entries in indices and aliasing of dst and src + indices lead
+ * to undefined behavior.
+ *
+ * This kernel corresponds to the following sequential loop
+ * for (int i = 0; i < N; ++i) {
+ *   dst[i] = src[indices[i]];
+ * }
+ *
+ * @param dst     Buffer into which the src elements are scattered.
+ * @param src     Source array.
+ * @param indices Indices of array elements in src to be copied to
+ *                buffer.
+ * @param N       Number of elements to scatter.
+ * */
+void launchScatter(double* dst, const double* src, const int* indices, int N);
+
 #endif
 

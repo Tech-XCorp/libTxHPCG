@@ -61,6 +61,17 @@ __global__ void zeroVectorKernel(double* __restrict__ v, int N) {
   }
 }
 
+__global__ void scatterKernel(double* __restrict__ dst,
+    const double* __restrict__ src, const int* __restrict indices,
+    int N) {
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  int numThreads = gridDim.x * blockDim.x;
+  while (i < N) {
+    dst[i] = src[indices[i]];
+    i += numThreads;
+  }
+}
+
 void launchSpmvKernel(local_int_t numNonZeroRows,
                       const local_int_t *nonZeroRows,
                       const local_int_t *offsets,
@@ -120,3 +131,14 @@ void launchZeroVector(double* v, int N) {
   }
 }
 
+void launchScatter(double* dst, const double* src, const int* indices, int N) {
+  if (N > 0) {
+    static const size_t blockSize = 128;
+    static const size_t MAX_NUM_BLOCKS = 128;
+    size_t numBlocks = getNumBlocks(N, blockSize);
+    if (numBlocks > MAX_NUM_BLOCKS) {
+      numBlocks = MAX_NUM_BLOCKS;
+    }
+    scatterKernel<<<numBlocks, blockSize>>>(dst, src, indices, N);
+  }
+}

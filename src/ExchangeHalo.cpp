@@ -62,7 +62,7 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   VectorOptimizationDataTx *vOptData =
     (VectorOptimizationDataTx*)x.optimizationData;
   launchScatter(optData->getSendBuffer_d(), vOptData->devicePtr,
-                A.elementsToSend, totalToBeSent);
+                optData->getElementsToSend_d(), totalToBeSent);
   cudaError_t cerr;
   cerr = cudaMemcpy(sendBuffer, optData->getSendBuffer_d(),
                     totalToBeSent * sizeof(double), cudaMemcpyDeviceToHost);
@@ -96,5 +96,6 @@ void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
                     cudaMemcpyHostToDevice);
   CHKCUDAERR(cerr);
 }
+
 
 #endif  // ifndef HPCG_NOMPI

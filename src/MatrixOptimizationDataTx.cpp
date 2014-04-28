@@ -48,13 +48,17 @@ MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
 
 int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   std::vector<local_int_t> i(A.localNumberOfRows + 1, 0);
-  std::vector<local_int_t> j(A.localNumberOfNonzeros, 0);
-  std::vector<double> a(A.localNumberOfNonzeros, 0);
+  // Slight overallocation for these arrays
+  std::vector<local_int_t> j;
+  j.reserve(A.localNumberOfNonzeros);
+  std::vector<double> a;
+  a.reserve(A.localNumberOfNonzeros);
   scatterFromHalo.setNumRows(A.localNumberOfRows);
   scatterFromHalo.setNumCols(A.localNumberOfColumns);
   scatterFromHalo.clear();
   // We're splitting the matrix into diagonal and off-diagonal block to
   // enable overlapping of computation and communication.
+  i[0] = 0;
   for (local_int_t m = 0; m < A.localNumberOfRows; ++m) {
     local_int_t nonzerosInRow = 0;
     for (local_int_t n = 0; n < A.nonzerosInRow[m]; ++n) {
@@ -168,26 +172,26 @@ int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
     bool copyOut) {
   double* x_dev = 0;
   double* y_dev = 0;
-#ifndef HPCG_NOMPI
-  DataTransfer transfer = BeginExchangeHalo(A, x);
-  EndExchangeHalo(A, x, transfer);
-  x_dev = transferDataToGPU(x);
-#endif
   if (copyIn) {
-#ifdef HPCG_NOMPI
     x_dev = transferDataToGPU(x);
-#endif
     y_dev = transferDataToGPU(y);
   } else {
     x_dev = ((VectorOptimizationDataTx*)x.optimizationData)->devicePtr;
     y_dev = ((VectorOptimizationDataTx*)y.optimizationData)->devicePtr;
   }
+#ifndef HPCG_NOMPI
+  DataTransfer transfer = BeginExchangeHalo(A, x);
+#endif
   double alpha = 1.0;
   double beta = 0.0;
   cusparseStatus_t cerr;
   cerr = cusparseDhybmv(handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha,
       matDescr, localMatrix, x_dev, &beta, y_dev);
   CHKCUSPARSEERR(cerr);
+#ifndef HPCG_NOMPI
+  EndExchangeHalo(A, x, transfer);
+  scatterFromHalo.spmv(x_dev, y_dev);
+#endif
   if (copyOut) {
     transferDataFromGPU(y);
   }

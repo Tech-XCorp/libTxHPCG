@@ -5,6 +5,7 @@
 #ifdef HAVE_MPI
 #include <mpi.h>
 #endif
+#include <cstring>
 
 SparseMatrix buildSparseMatrix(int nXFine, int nYFine, int nZFine) {
   int nXCoarse = nXFine / 2;

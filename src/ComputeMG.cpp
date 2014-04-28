@@ -51,9 +51,9 @@ int ComputeMG(const SparseMatrix& A, const Vector& r, Vector& x, bool copyIn,
     // Perform restriction operation using simple injection
     ierr = ComputeRestriction(A, r, false, false);  if (ierr!=0) return(ierr);
     ierr = ComputeMG(*A.Ac,*A.mgData->rc, *A.mgData->xc, false, false);  if (ierr!=0) return(ierr);
-    ierr = ComputeProlongation(A, x, false, true);  if (ierr!=0) return(ierr);
+    ierr = ComputeProlongation(A, x, false, false);  if (ierr!=0) return(ierr);
     int numberOfPostsmootherSteps = A.mgData->numberOfPostsmootherSteps;
-    ierr += ComputeSYMGS(A, r, x, numberOfPostsmootherSteps, true, copyOut);
+    ierr += ComputeSYMGS(A, r, x, numberOfPostsmootherSteps, false, copyOut);
     if (ierr!=0) return(ierr);
   }
   else {

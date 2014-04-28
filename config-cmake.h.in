@@ -1,2 +1,6 @@
 // defined if we have MPI
 #cmakedefine HAVE_MPI
+
+// defined if we have GPU aware MPI
+#cmakedefine HAVE_GPU_AWARE_MPI
+

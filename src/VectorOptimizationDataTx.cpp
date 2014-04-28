@@ -1,6 +1,8 @@
 #include <VectorOptimizationDataTx.hpp>
 
 #include <iostream>
+#include <cuda_runtime.h>
+#include <chkcudaerror.hpp>
 
 #include <Vector.hpp>
 #include <src/KernelWrappers.h>

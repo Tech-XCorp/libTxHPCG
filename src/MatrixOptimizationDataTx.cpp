@@ -1,10 +1,13 @@
-#include "MatrixOptimizationDataTx.hpp"
-#include "SparseMatrix.hpp"
-#include "KernelWrappers.h"
+#include <MatrixOptimizationDataTx.hpp>
+#include <SparseMatrix.hpp>
+#include <KernelWrappers.h>
+#include <chkcudaerror.hpp>
+#include <VectorOptimizationDataTx.hpp>
+#include <config.h>
 
 #ifndef HPCG_NOMPI
-#include "ExchangeHalo.hpp"
-#include "mpi.h"
+#include <ExchangeHalo.hpp>
+#include <mpi.h>
 #endif
 
 MatrixOptimizationDataTx::MatrixOptimizationDataTx()
@@ -115,6 +118,9 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   CHKCUDAERR(err);
   err = cudaMalloc((void**)&sendBuffer_d, A.totalToBeSent * sizeof(double));
   CHKCUDAERR(err);
+#ifdef HAVE_GPU_AWARE_MPIO
+  std::cout << "Using GPU aware MPI." << std::endl;
+#endif
 #endif
 
   // Set up the GS data.

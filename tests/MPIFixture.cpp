@@ -4,6 +4,7 @@
 #ifdef HAVE_MPI
 #include <mpi.h>
 #endif
+#include <cstring>
 
 MPIFixture::MPIFixture() {
   if (mpiInitialized) {

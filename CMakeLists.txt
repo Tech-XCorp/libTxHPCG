@@ -21,6 +21,10 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 option(ENABLE_MEMCHECK 
     "Enables testing to use valgrind to track memory leaks in tests."
     OFF)
+option(ENABLE_GPU_AWARE_MPI "Enables GPU aware MPI." ON)
+if (ENABLE_GPU_AWARE_MPI)
+  set(HAVE_GPU_AWARE_MPI TRUE)
+endif ()
 
 # Packages
 find_package(CUDA)

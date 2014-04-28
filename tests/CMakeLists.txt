@@ -7,6 +7,7 @@ add_library(testUtils
     ${HPCG_SOURCE_DIR}/ExchangeHalo.cpp
     ${HPCG_SOURCE_DIR}/init.cpp
     ${HPCG_SOURCE_DIR}/ReadHpcgDat.cpp
+    ${HPCG_SOURCE_DIR}/ComputeWAXPBY_ref.cpp
     )
 target_link_libraries(
     testUtils 
@@ -21,6 +22,7 @@ set(TxHPCG_TESTS
     test_ComputeRestriction
     test_ComputeProlongation
     test_TestUtils
+    test_ComputeWAXPBY
    )
 set(TxHPCG_PAR_TESTS
     test_HPCGFixture

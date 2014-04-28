@@ -44,5 +44,11 @@ void launchDeviceCopy(double* dst, const double* src, int N);
  * */
 void launchScatter(double* dst, const double* src, const int* indices, int N);
 
+/**
+ * w <- alpha * x + beta * y
+ * */
+void launchComputeWAXPBY(local_int_t N, double alpha, const double* x,
+    double beta, const double* y, double* w);
+
 #endif
 

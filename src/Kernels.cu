@@ -72,6 +72,18 @@ __global__ void scatterKernel(double* __restrict__ dst,
   }
 }
 
+__global__ void waxpyKernel(local_int_t N,
+    double alpha, const double* __restrict__ x,
+    double beta, const double* __restrict__ y, 
+    double* __restrict__ w) {
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  int numThreads = gridDim.x * blockDim.x;
+  while (i < N) {
+    w[i] = alpha * x[i] + beta * y[i];
+    i += numThreads;
+  }
+}
+
 void launchSpmvKernel(local_int_t numNonZeroRows,
                       const local_int_t *nonZeroRows,
                       const local_int_t *offsets,
@@ -142,3 +154,17 @@ void launchScatter(double* dst, const double* src, const int* indices, int N) {
     scatterKernel<<<numBlocks, blockSize>>>(dst, src, indices, N);
   }
 }
+
+void launchComputeWAXPBY(local_int_t N, double alpha, const double* x,
+    double beta, const double* y, double* w) {
+  if (N > 0) {
+    static const size_t blockSize = 128;
+    static const size_t MAX_NUM_BLOCKS = 1024;
+    size_t numBlocks = getNumBlocks(N, blockSize);
+    if (numBlocks > MAX_NUM_BLOCKS) {
+      numBlocks = MAX_NUM_BLOCKS;
+    }
+    waxpyKernel<<<numBlocks, blockSize>>>(N, alpha, x, beta, y, w);
+  }
+}
+

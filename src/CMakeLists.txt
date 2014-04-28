@@ -6,6 +6,7 @@ set(TxHPCG_SOURCES
     ComputeRestriction.cpp
     ComputeSPMV.cpp
     ComputeSYMGS.cpp
+    ComputeWAXPBY.cpp
     MatrixOptimizationDataTx.cpp
     VectorOptimizationDataTx.cpp
     OptimizeProblem.cpp

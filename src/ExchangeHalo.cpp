@@ -22,6 +22,7 @@
 #include <chkcudaerror.hpp>
 #include <MatrixOptimizationDataTx.hpp>
 #include <VectorOptimizationDataTx.hpp>
+#include <config.h>
 
 struct DataTransfer_ {
   std::vector<MPI_Request> receive_requests;
@@ -33,10 +34,13 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   local_int_t *receiveLength = A.receiveLength;
   local_int_t *sendLength = A.sendLength;
   int *neighbors = A.neighbors;
+#ifdef HAVE_GPU_AWARE_MPI
+  double *sendBuffer =
+      ((MatrixOptimizationDataTx *)A.optimizationData)->getSendBuffer_d();
+#else
   double *sendBuffer = A.sendBuffer;
+#endif
   local_int_t totalToBeSent = A.totalToBeSent;
-
-  double *const xv = x.values;
 
   int size, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -48,7 +52,13 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   transfer->receive_requests.resize(num_neighbors);
   MPI_Request *request = transfer->receive_requests.data();
 
-  double *x_external = (double *)xv + localNumberOfRows;
+  VectorOptimizationDataTx *vOptData =
+    (VectorOptimizationDataTx*)x.optimizationData;
+#ifdef HAVE_GPU_AWARE_MPI
+  double *x_external = vOptData->devicePtr + localNumberOfRows;
+#else
+  double *x_external = x.values + localNumberOfRows;
+#endif
 
   for (int i = 0; i < num_neighbors; i++) {
     local_int_t n_recv = receiveLength[i];
@@ -59,14 +69,15 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
 
   MatrixOptimizationDataTx *optData =
       (MatrixOptimizationDataTx *)A.optimizationData;
-  VectorOptimizationDataTx *vOptData =
-    (VectorOptimizationDataTx*)x.optimizationData;
   launchScatter(optData->getSendBuffer_d(), vOptData->devicePtr,
                 optData->getElementsToSend_d(), totalToBeSent);
+#ifdef HAVE_GPU_AWARE_MPI
+#else
   cudaError_t cerr;
   cerr = cudaMemcpy(sendBuffer, optData->getSendBuffer_d(),
                     totalToBeSent * sizeof(double), cudaMemcpyDeviceToHost);
   CHKCUDAERR(cerr);
+#endif
   for (int i = 0; i < num_neighbors; i++) {
     local_int_t n_send = sendLength[i];
     MPI_Send(sendBuffer, n_send, MPI_DOUBLE, neighbors[i], MPI_MY_TAG,
@@ -87,6 +98,8 @@ void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
     }
   }
   delete transfer;
+#ifdef HAVE_GPU_AWARE_MPI
+#else
   VectorOptimizationDataTx *vOptData =
       (VectorOptimizationDataTx *)x.optimizationData;
   cudaError_t cerr;
@@ -95,7 +108,7 @@ void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
                     x.values + A.localNumberOfRows, numRecvd * sizeof(double),
                     cudaMemcpyHostToDevice);
   CHKCUDAERR(cerr);
+#endif
 }
-
 
 #endif  // ifndef HPCG_NOMPI

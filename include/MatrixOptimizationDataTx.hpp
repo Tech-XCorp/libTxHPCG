@@ -32,21 +32,22 @@ class MatrixOptimizationDataTx {
                           bool copyOut);
   int ComputeRestriction(const SparseMatrix& Af, const Vector& rf, bool copyIn,
                          bool copyOut);
+  double* getSendBuffer_d() { return sendBuffer_d; }
 
  private:
   cusparseHandle_t handle;              //!< cusparse context
   cusparseMatDescr_t matDescr;          //!< matrix Description
   cusparseHybMat_t localMatrix;         //!< cusparse matrix
   cugelusSorIterationData_t gsContext;  //!< gelus GS context
-  CPCSR scatterFromHalo;                //!< sparse matrix needed for receiving 
+  CPCSR scatterFromHalo;                //!< sparse matrix needed for receiving
                                         //   data from other processes
   local_int_t* f2c;                     //!< restriction/prolongation operator
 #ifndef HPCG_NOMPI
   local_int_t* elementsToSend;          //!< Indices of elements to send
+  double* sendBuffer_d;                 //!< Send buffer on device.
 #endif
 
-  double* workvector;                   //!< Work space for SYMGS
-
+  double* workvector;  //!< Work space for SYMGS
 
   // Disallow copy and assignment
   MatrixOptimizationDataTx(const MatrixOptimizationDataTx&);

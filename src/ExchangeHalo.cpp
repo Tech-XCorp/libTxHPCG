@@ -18,6 +18,10 @@
 #include "ExchangeHalo.hpp"
 #include <cstdlib>
 #include <vector>
+#include "KernelWrappers.h"
+#include <chkcudaerror.hpp>
+#include <MatrixOptimizationDataTx.hpp>
+#include <VectorOptimizationDataTx.hpp>
 
 struct DataTransfer_ {
   std::vector<MPI_Request> receive_requests;
@@ -31,7 +35,6 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   int *neighbors = A.neighbors;
   double *sendBuffer = A.sendBuffer;
   local_int_t totalToBeSent = A.totalToBeSent;
-  local_int_t *elementsToSend = A.elementsToSend;
 
   double *const xv = x.values;
 
@@ -53,9 +56,17 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
               MPI_COMM_WORLD, request + i);
     x_external += n_recv;
   }
-  for (local_int_t i = 0; i < totalToBeSent; i++) {
-    sendBuffer[i] = xv[elementsToSend[i]];
-  }
+
+  MatrixOptimizationDataTx *optData =
+      (MatrixOptimizationDataTx *)A.optimizationData;
+  VectorOptimizationDataTx *vOptData =
+    (VectorOptimizationDataTx*)x.optimizationData;
+  launchScatter(optData->getSendBuffer_d(), vOptData->devicePtr,
+                A.elementsToSend, totalToBeSent);
+  cudaError_t cerr;
+  cerr = cudaMemcpy(sendBuffer, optData->getSendBuffer_d(),
+                    totalToBeSent * sizeof(double), cudaMemcpyDeviceToHost);
+  CHKCUDAERR(cerr);
   for (int i = 0; i < num_neighbors; i++) {
     local_int_t n_send = sendLength[i];
     MPI_Send(sendBuffer, n_send, MPI_DOUBLE, neighbors[i], MPI_MY_TAG,
@@ -76,6 +87,14 @@ void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
     }
   }
   delete transfer;
+  VectorOptimizationDataTx *vOptData =
+      (VectorOptimizationDataTx *)x.optimizationData;
+  cudaError_t cerr;
+  local_int_t numRecvd = A.localNumberOfColumns - A.localNumberOfRows;
+  cerr = cudaMemcpy(vOptData->devicePtr + A.localNumberOfRows,
+                    x.values + A.localNumberOfRows, numRecvd * sizeof(double),
+                    cudaMemcpyHostToDevice);
+  CHKCUDAERR(cerr);
 }
 
 #endif  // ifndef HPCG_NOMPI

@@ -42,6 +42,7 @@ MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
   }
 #ifndef HPCG_NOMPI
   CHKCUDAERR(cudaFree(elementsToSend));
+  CHKCUDAERR(cudaFree(sendBuffer_d));
 #endif
 }
 
@@ -104,7 +105,11 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   err = cudaMalloc((void**)&elementsToSend,
                    A.totalToBeSent * sizeof(*elementsToSend));
   CHKCUDAERR(err);
-  err = cudaMemcpy(elementsToSend, A.elementsToSend, A.totalToBeSent * sizeof(*elementsToSend), cudaMemcpyHostToDevice);
+  err = cudaMemcpy(elementsToSend, A.elementsToSend,
+                   A.totalToBeSent * sizeof(*elementsToSend),
+                   cudaMemcpyHostToDevice);
+  CHKCUDAERR(err);
+  err = cudaMalloc((void**)&sendBuffer_d, A.totalToBeSent * sizeof(double));
   CHKCUDAERR(err);
 #endif
 

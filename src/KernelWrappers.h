@@ -52,6 +52,8 @@ void launchComputeWAXPBY(local_int_t N, double alpha, const double* x,
 
 /**
  * *result = dot(x, y);
+ *
+ * THIS FUNCTION IS NOT THREAD SAFE!
  * */
 void launchComputeDotProduct(local_int_t N, const double* x, const double* y,
                              double* result);

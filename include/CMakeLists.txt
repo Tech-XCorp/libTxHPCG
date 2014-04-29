@@ -1,5 +1,6 @@
 set(TxHPCG_HEADERS
     CPCSR.hpp
+    ComputeDotProduct.hpp
     ComputeMG.hpp
     ComputeProlongation.hpp
     ComputeRestriction.hpp

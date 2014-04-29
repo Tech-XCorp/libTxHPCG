@@ -13,7 +13,7 @@ typedef struct Vector_STRUCT Vector;
  * @sa Vector, SparseMatrix, MatrixOptimizationDataTx
  * */
 struct VectorOptimizationDataTx {
-  double* devicePtr;  //!< Pointer to vector data on GPU
+  double* devicePtr;
   void ZeroVector(int N);
 };
 

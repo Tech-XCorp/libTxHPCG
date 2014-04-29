@@ -8,6 +8,8 @@ add_library(testUtils
     ${HPCG_SOURCE_DIR}/init.cpp
     ${HPCG_SOURCE_DIR}/ReadHpcgDat.cpp
     ${HPCG_SOURCE_DIR}/ComputeWAXPBY_ref.cpp
+    ${HPCG_SOURCE_DIR}/ComputeDotProduct_ref.cpp
+    ${HPCG_SOURCE_DIR}/mytimer.cpp
     )
 target_link_libraries(
     testUtils 
@@ -31,6 +33,7 @@ set(TxHPCG_PAR_TESTS
     test_ComputeSPMV
     test_ComputeSYMGS
     test_ComputeMG
+    test_ComputeDotProduct
    )
 foreach(t ${TxHPCG_TESTS} ${TxHPCG_PAR_TESTS})
   add_executable(${t} ${t}.cpp)

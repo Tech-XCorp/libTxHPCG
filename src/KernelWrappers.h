@@ -50,5 +50,10 @@ void launchScatter(double* dst, const double* src, const int* indices, int N);
 void launchComputeWAXPBY(local_int_t N, double alpha, const double* x,
     double beta, const double* y, double* w);
 
+/**
+ * *result = dot(x, y);
+ * */
+void launchComputeDotProduct(local_int_t N, const double* x, const double* y,
+                             double* result);
 #endif
 

@@ -1,4 +1,9 @@
 #include "KernelWrappers.h"
+#include <numeric>
+#include <vector>
+#include <chkcudaerror.hpp>
+
+#define MAX_REDUCTION_SIZE 128
 
 size_t getNumBlocks(size_t numThreads, size_t blockSize) {
   size_t numBlocks = (numThreads + blockSize - 1) / blockSize;
@@ -81,6 +86,29 @@ __global__ void waxpyKernel(local_int_t N,
   while (i < N) {
     w[i] = alpha * x[i] + beta * y[i];
     i += numThreads;
+  }
+}
+
+__global__ void dotProductKernel(int N, const double* __restrict__ x,
+    const double* __restrict__ y, double* __restrict__ result) {
+  extern __shared__ double sdata[];
+  double sum = 0;
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  int numThreads = gridDim.x * blockDim.x;
+  while (i < N) {
+    sum += x[i] * y[i];
+    i += numThreads;
+  }
+  sdata[threadIdx.x] = sum;
+  __syncthreads();
+  for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) {
+      sdata[threadIdx.x] += sdata[threadIdx.x + s];
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    result[blockIdx.x] = sdata[0];
   }
 }
 
@@ -168,3 +196,32 @@ void launchComputeWAXPBY(local_int_t N, double alpha, const double* x,
   }
 }
 
+void launchComputeDotProduct(local_int_t N, const double* x, const double* y,
+                             double* result) {
+  static double* partialReduction_d = 0;
+  static std::vector<double> partialReduction_h(MAX_REDUCTION_SIZE);
+  cudaError_t cerr = cudaSuccess;
+  if (!partialReduction_d) {
+    cerr = cudaMalloc((void**)&partialReduction_d, 
+        MAX_REDUCTION_SIZE * sizeof(double));
+    CHKCUDAERR(cerr);
+  }
+  if (N > 0) {
+    static const size_t blockSize = 512;
+    static const size_t MAX_NUM_BLOCKS = MAX_REDUCTION_SIZE;
+    size_t numBlocks = getNumBlocks(N, blockSize);
+    if (numBlocks > MAX_NUM_BLOCKS) {
+      numBlocks = MAX_NUM_BLOCKS;
+    }
+    dotProductKernel<<<numBlocks, blockSize, blockSize * sizeof(double)>>>(
+        N, x, y, partialReduction_d);
+    cudaError_t cerr = cudaMemcpy(partialReduction_h.data(),
+        partialReduction_d, numBlocks * sizeof(double), cudaMemcpyDeviceToHost);
+    CHKCUDAERR(cerr);
+    *result = std::accumulate(partialReduction_h.begin(),
+                              partialReduction_h.begin() + numBlocks,
+                              0.0);
+  } else {
+    *result = 0;
+  }
+}

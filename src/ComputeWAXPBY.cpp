@@ -19,6 +19,9 @@ int ComputeWAXPBY(const local_int_t n, const double alpha, const Vector & x,
   launchComputeWAXPBY(n, alpha, x_d, beta, y_d, w_d);
   if (copyOut) {
     transferDataFromGPU(w);
+  } else {
+    cudaError_t cerr = cudaDeviceSynchronize();
+    CHKCUDAERR(cerr);
   }
   return 0;
 }

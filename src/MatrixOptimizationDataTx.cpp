@@ -200,6 +200,9 @@ int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
 #endif
   if (copyOut) {
     transferDataFromGPU(y);
+  } else {
+    cudaError_t err = cudaDeviceSynchronize();
+    CHKCUDAERR(err);
   }
   return 0;
 }
@@ -229,6 +232,9 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
   CHKGELUSERR(err);
   if (copyOut) {
     transferDataFromGPU(x);
+  } else {
+    cudaError_t cerr = cudaDeviceSynchronize();
+    CHKCUDAERR(cerr);
   }
   return 0;
 }

@@ -60,6 +60,8 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   double *x_external = x.values + localNumberOfRows;
 #endif
 
+  cudaError_t cerr = cudaDeviceSynchronize();
+  CHKCUDAERR(cerr);
   for (int i = 0; i < num_neighbors; i++) {
     local_int_t n_recv = receiveLength[i];
     MPI_Irecv(x_external, n_recv, MPI_DOUBLE, neighbors[i], MPI_MY_TAG,
@@ -73,7 +75,6 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
                 optData->getElementsToSend_d(), totalToBeSent);
 #ifdef HAVE_GPU_AWARE_MPI
 #else
-  cudaError_t cerr;
   cerr = cudaMemcpy(sendBuffer, optData->getSendBuffer_d(),
                     totalToBeSent * sizeof(double), cudaMemcpyDeviceToHost);
   CHKCUDAERR(cerr);
@@ -88,14 +89,12 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
 }
 
 void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
-  MPI_Status status;
   MPI_Request *request = transfer->receive_requests.data();
   int num_neighbors = A.numberOfSendNeighbors;
-  // TODO: Thread this loop
-  for (int i = 0; i < num_neighbors; i++) {
-    if (MPI_Wait(request + i, &status)) {
-      std::exit(-1);  // TODO: have better error exit
-    }
+  int err = MPI_Waitall(num_neighbors, request, MPI_STATUSES_IGNORE);
+  if (err != MPI_SUCCESS) {
+    std::cout << "Error in EndExchangeHalo." << std::endl;
+    exit(-1);
   }
   delete transfer;
 #ifdef HAVE_GPU_AWARE_MPI

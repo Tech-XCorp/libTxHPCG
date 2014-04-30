@@ -25,7 +25,7 @@
 #include <config.h>
 
 struct DataTransfer_ {
-  std::vector<MPI_Request> receive_requests;
+  std::vector<MPI_Request> requests;
 };
 
 DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
@@ -49,8 +49,8 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   int MPI_MY_TAG = 99;
 
   DataTransfer transfer = new DataTransfer_;
-  transfer->receive_requests.resize(num_neighbors);
-  MPI_Request *request = transfer->receive_requests.data();
+  transfer->requests.resize(2 * num_neighbors);
+  MPI_Request *request = transfer->requests.data();
 
   VectorOptimizationDataTx *vOptData =
     (VectorOptimizationDataTx*)x.optimizationData;
@@ -79,19 +79,20 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
                     totalToBeSent * sizeof(double), cudaMemcpyDeviceToHost);
   CHKCUDAERR(cerr);
 #endif
+  request = transfer->requests.data() + num_neighbors;
   for (int i = 0; i < num_neighbors; i++) {
     local_int_t n_send = sendLength[i];
-    MPI_Send(sendBuffer, n_send, MPI_DOUBLE, neighbors[i], MPI_MY_TAG,
-             MPI_COMM_WORLD);
+    MPI_Isend(sendBuffer, n_send, MPI_DOUBLE, neighbors[i], MPI_MY_TAG,
+             MPI_COMM_WORLD, request + i);
     sendBuffer += n_send;
   }
   return transfer;
 }
 
 void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
-  MPI_Request *request = transfer->receive_requests.data();
+  MPI_Request *request = transfer->requests.data();
   int num_neighbors = A.numberOfSendNeighbors;
-  int err = MPI_Waitall(num_neighbors, request, MPI_STATUSES_IGNORE);
+  int err = MPI_Waitall(2 * num_neighbors, request, MPI_STATUSES_IGNORE);
   if (err != MPI_SUCCESS) {
     std::cout << "Error in EndExchangeHalo." << std::endl;
     exit(-1);

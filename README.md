@@ -51,7 +51,7 @@ cmake \
   -DSUPRA_SEARCH_PATH=${HOME}/software \
   -DCMAKE_CXX_COMPILER=${HOME}/software/openmpi/bin/mpicxx \
   -DCMAKE_C_COMPILER=${HOME/software/openmpi/bin/mpicc \
-  -DMPI_CXX_COMPILER=${HOME}/software/openmpi/bin/mpicxx
+  -DMPI_CXX_COMPILER=${HOME}/software/openmpi/bin/mpicxx \
   -DMPI_C_COMPILER=${HOME}/software/openmpi/bin/mpicc \
   -DMPIEXEC=${HOME}/software/openmpi/bin/mpirun \
   -DCMAKE_INSTALL_PREFIX=${HOME}/software/TxHPCG \

@@ -32,8 +32,8 @@ class MatrixOptimizationDataTx {
                           bool copyOut);
   int ComputeRestriction(const SparseMatrix& Af, const Vector& rf, bool copyIn,
                          bool copyOut);
-  double* getSendBuffer_d() { return sendBuffer_d; }
-  int* getElementsToSend_d() { return elementsToSend; } 
+  double* getSendBuffer_d();
+  int* getElementsToSend_d();
 
  private:
   cusparseHandle_t handle;              //!< cusparse context

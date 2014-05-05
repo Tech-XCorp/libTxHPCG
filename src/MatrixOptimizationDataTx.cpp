@@ -301,3 +301,13 @@ void dumpMatrix(std::ostream& s, const std::vector<int>& i,
     }
   }
 }
+
+#ifndef HPCG_NOMPI
+double* MatrixOptimizationDataTx::getSendBuffer_d() {
+  return sendBuffer_d;
+}
+
+int* MatrixOptimizationDataTx::getElementsToSend_d() {
+  return elementsToSend;
+}
+#endif

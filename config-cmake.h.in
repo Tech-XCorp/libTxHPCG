@@ -4,3 +4,5 @@
 // defined if we have GPU aware MPI
 #cmakedefine HAVE_GPU_AWARE_MPI
 
+#cmakedefine HPCG_NOMPI
+

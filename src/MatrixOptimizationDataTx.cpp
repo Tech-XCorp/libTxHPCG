@@ -118,7 +118,7 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
   CHKCUDAERR(err);
   err = cudaMalloc((void**)&sendBuffer_d, A.totalToBeSent * sizeof(double));
   CHKCUDAERR(err);
-#ifdef HAVE_GPU_AWARE_MPIO
+#ifdef HAVE_GPU_AWARE_MPI
   std::cout << "Using GPU aware MPI." << std::endl;
 #endif
 #endif

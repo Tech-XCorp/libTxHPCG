@@ -1,5 +1,6 @@
 #include "ComputeDotProduct.hpp"
 #include "KernelWrappers.h"
+#include "VectorOptimizationDataTx.hpp"
 #ifndef HPCG_NOMPI
 #include <mpi.h>
 #include "mytimer.hpp"

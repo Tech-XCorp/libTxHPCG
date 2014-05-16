@@ -10,8 +10,10 @@ set(TxHPCG_HEADERS
     ExchangeHalo.hpp
     MatrixOptimizationDataTx.hpp
     VectorOptimizationDataTx.hpp
-    chkcudaerror.hpp
    )
 
 install(FILES ${TxHPCG_HEADERS} DESTINATION include)
+if(BUILD_CU_TXHPCG)
+  add_subdirectory(CU)
+endif()
 

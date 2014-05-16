@@ -29,3 +29,9 @@ void transferDataFromGPU(const Vector &v) {
 void VectorOptimizationDataTx::ZeroVector(int n) {
   launchZeroVector(devicePtr, n);
 }
+
+void freeResources(VectorOptimizationDataTx* optimizationData) {
+  if (optimizationData->devicePtr) {
+    cudaFree(devicePtr);
+  }
+}

@@ -24,10 +24,9 @@
 #include "VectorOptimizationDataTx.hpp"
 #include <cusparse_v2.h>
 #include <cuda_runtime.h>
-#include "chkcudaerror.hpp"
 
-cusparseStatus_t setUpLocalMatrixOnGPU(SparseMatrix& A);
-cusparseStatus_t initializeCusparse(SparseMatrix& A);
+int setUpLocalMatrixOnGPU(SparseMatrix& A);
+int initializeCusparse(SparseMatrix& A);
 
 /*!
   Optimizes the data structures used for CG iteration to increase the

@@ -1,7 +1,6 @@
 #include <ComputeWAXPBY.hpp>
 #include <KernelWrappers.h>
 #include "VectorOptimizationDataTx.hpp"
-#include "chkcudaerror.hpp"
 
 int ComputeWAXPBY(const local_int_t n, const double alpha, const Vector & x,
     const double beta, const Vector & y, Vector & w, bool & isOptimized,
@@ -21,9 +20,6 @@ int ComputeWAXPBY(const local_int_t n, const double alpha, const Vector & x,
   launchComputeWAXPBY(n, alpha, x_d, beta, y_d, w_d);
   if (copyOut) {
     transferDataFromGPU(w);
-  } else {
-    cudaError_t cerr = cudaDeviceSynchronize();
-    CHKCUDAERR(cerr);
   }
   return 0;
 }

@@ -25,7 +25,6 @@
 #include "ComputeSPMV_ref.hpp"
 #include "VectorOptimizationDataTx.hpp"
 #include "MatrixOptimizationDataTx.hpp"
-#include "chkcudaerror.hpp"
 
 /*!
   Routine to compute sparse matrix vector product y = Ax where:

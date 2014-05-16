@@ -18,6 +18,12 @@ struct VectorOptimizationDataTx {
 };
 
 /**
+ * @brief Release all resources needed by VectorOptimizationDataTx
+ *
+ * */
+void freeResources(VectorOptimizationDataTx*);
+
+/**
  * @brief Transfer data in Vector from host to GPU
  *
  * The data on the GPU is overwritten by the host data.

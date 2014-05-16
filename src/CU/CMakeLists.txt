@@ -1,6 +1,7 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(CUTxHPCG_SOURCES
     CPCSR.cpp
+    ComputeDotProduct.cpp
     MatrixOptimizationDataTx.cpp
     VectorOptimizationDataTx.cpp
     OptimizeProblem.cpp

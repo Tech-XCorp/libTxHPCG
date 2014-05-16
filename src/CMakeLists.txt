@@ -1,6 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(TxHPCG_SOURCES
-    ComputeDotProduct.cpp
     ComputeMG.cpp
     ComputeProlongation.cpp
     ComputeRestriction.cpp

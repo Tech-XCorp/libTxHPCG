@@ -18,20 +18,26 @@ set(NOFORTRAN TRUE)
 include(${PROJECT_SOURCE_DIR}/scimake/SciInit.cmake)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 
-option(ENABLE_MEMCHECK 
-    "Enables testing to use valgrind to track memory leaks in tests."
-    OFF)
+option(BUILD_CU_TXHPCG "Whether to build cuda backend for libTxHPCG" ON)
+option(BUILD_OCL_TXHPCG "Whether to build OpenCL backend for libTxHPCG" OFF)
+option(ENABLE_MEMCHECK "Enables testing to use valgrind to track memory leaks in tests." OFF)
 option(ENABLE_GPU_AWARE_MPI "Enables GPU aware MPI." ON)
-if (ENABLE_GPU_AWARE_MPI)
-  set(HAVE_GPU_AWARE_MPI TRUE)
-endif ()
 
+if(BUILD_CU_TXHPCG)
+  if (ENABLE_GPU_AWARE_MPI)
+    set(HAVE_GPU_AWARE_MPI TRUE)
+  endif ()
 # Packages
-find_package(CUDA)
-find_cuda_helper_libs(cusparse)
-find_package(SciCusp)
-find_package(SciOpenCL)
-find_package(Gelus)
+  find_package(CUDA)
+  find_cuda_helper_libs(cusparse)
+  find_package(SciCusp)
+  find_package(CuGelus)
+endif()
+if(BUILD_OCL_TXHPCG)
+  find_package(SciOpenCL)
+  find_package(OclGelus)
+endif()
+
 find_package(SciBoost COMPONENTS unit_test_framework REQUIRED)
 find_package(SciMpi REQUIRED)
 set(HAVE_MPI TRUE)
@@ -70,14 +76,20 @@ include_directories(
     ${PROJECT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${HPCG_SOURCE_DIR}
-    ${Gelus_INCLUDE_DIRS}
     ${CMAKE_BINARY_DIR}
     )
 include_directories(SYSTEM 
     ${Boost_INCLUDE_DIRS}
-    ${CUDA_INCLUDE_DIRS}
     ${MPI_INCLUDE_DIRS}
     )
+if(BUILD_CU_TXHPCG)
+  include_directories(${CuGelus_INCLUDE_DIRS})
+  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+endif()
+if(BUILD_OCL_TXHPCG)
+  include_directories(${OclGelus_INCLUDE_DIRS})
+  include_directories(SYSTEM ${OpenCL_INCLUDE_DIRS})
+endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/config-cmake.h.in config.h)
 

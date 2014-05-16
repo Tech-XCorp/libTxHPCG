@@ -1,6 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(TxHPCG_SOURCES
-    CPCSR.cpp
     ComputeDotProduct.cpp
     ComputeMG.cpp
     ComputeProlongation.cpp
@@ -8,17 +7,15 @@ set(TxHPCG_SOURCES
     ComputeSPMV.cpp
     ComputeSYMGS.cpp
     ComputeWAXPBY.cpp
-    MatrixOptimizationDataTx.cpp
-    VectorOptimizationDataTx.cpp
-    OptimizeProblem.cpp
-    ExchangeHalo.cpp
     ${HPCG_SOURCE_DIR}/GenerateCoarseProblem.cpp
     )
-set(TxHPCG_SOURCES_CU
-    Kernels.cu
-   )
-cuda_add_library(TxHPCG
+add_library(TxHPCG
     ${TxHPCG_SOURCES}
-    ${TxHPCG_SOURCES_CU}
     )
+if(BUILD_CU_TXHPCG)
+  add_subdirectory(CU)
+endif()
+if(BUILD_OCL_TXHPCG)
+  add_subdirectory(OCL)
+endif()
 install(TARGETS TxHPCG DESTINATION lib)

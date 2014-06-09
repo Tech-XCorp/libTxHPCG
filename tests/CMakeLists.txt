@@ -18,6 +18,7 @@ target_link_libraries(
     )
 set(TxHPCG_TESTS
     test_TestUtils
+    test_TxMatrixOptimizationDataBase
    )
 set(TxHPCG_PAR_TESTS
     test_HPCGFixture

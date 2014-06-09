@@ -1,3 +1,4 @@
+build*
 scimake
 # Compiled Object files
 *.slo

@@ -1,8 +1,7 @@
 #ifndef VECTOR_OPTIMIZATION_DATA_TX_HPP
 #define VECTOR_OPTIMIZATION_DATA_TX_HPP
 
-struct Vector_STRUCT;
-typedef struct Vector_STRUCT Vector;
+#include <TxVectorOptimizationDataBase.hpp>
 
 /**
  * @brief Class with data for Tx implementation of HPCG
@@ -12,36 +11,19 @@ typedef struct Vector_STRUCT Vector;
  *
  * @sa Vector, SparseMatrix, MatrixOptimizationDataTx
  * */
-struct VectorOptimizationDataTx {
-  double* devicePtr;
-  void ZeroVector(int N);
+class VectorOptimizationDataTx : public TxVectorOptimizationDataBase{
+  public:
+    void ZeroVector(int N);
+    virtual void freeResources();
+    virtual void transferDataToDevice(const double*);
+    virtual void transferDataFromDevice(double*);
+    virtual void copyDeviceData(void* dest, int numEntries) = 0;
+    virtual int computeWAXPBY(int n, double alpha, const void* x, double beta, const void* y, void* w) const = 0;
+    virtual void computeDotProduct(int n, const void* x, const void* y, double* result) const = 0;
+    virtual void* getDevicePtr();
+  private:
+    double* devicePtr;
 };
-
-/**
- * @brief Release all resources needed by VectorOptimizationDataTx
- *
- * */
-void freeResources(VectorOptimizationDataTx*);
-
-/**
- * @brief Transfer data in Vector from host to GPU
- *
- * The data on the GPU is overwritten by the host data.
- *
- * @return Device pointer to data on GPU
- *
- * @sa transferDataFromGPU
- * */
-double* transferDataToGPU(const Vector& v);
-
-/**
- * @brief Transfer data from GPU to host.
- *
- * The data on the host side is overwritten by the GPU data.
- *
- * @sa transferDataToGPU
- * */
-void transferDataFromGPU(const Vector& v);
 
 #endif
 

@@ -1,5 +1,5 @@
 #include "CPCSR.hpp"
-#include "chkcudaerror.hpp"
+#include "CU/chkcudaerror.hpp"
 #include "KernelWrappers.h"
 
 CPCSR::CPCSR(local_int_t nRows, local_int_t nCols)

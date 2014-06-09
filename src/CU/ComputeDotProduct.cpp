@@ -1,6 +1,6 @@
 #include "ComputeDotProduct.hpp"
 #include "KernelWrappers.h"
-#include "VectorOptimizationDataTx.hpp"
+#include "TxVectorOptimizationDataBase.hpp"
 #ifndef HPCG_NOMPI
 #include <mpi.h>
 #include "mytimer.hpp"
@@ -10,17 +10,20 @@
 int ComputeDotProduct(const local_int_t n, const Vector & x, const Vector & y,
     double & result, double & time_allreduce, bool & isOptimized, bool copyIn) {
   isOptimized = true;
-  const double* x_d;
-  const double* y_d;
+  const void* x_d;
+  const void* y_d;
   if (copyIn) {
-    x_d = transferDataToGPU(x);
-    y_d = transferDataToGPU(y);
+    transferDataToDevice(x);
+    x_d = ((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    transferDataToDevice(y);
+    y_d = ((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
   } else {
-    x_d = ((VectorOptimizationDataTx*)x.optimizationData)->devicePtr;
-    y_d = ((VectorOptimizationDataTx*)y.optimizationData)->devicePtr;
+    x_d = ((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    y_d = ((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
   }
   double local_result;
-  launchComputeDotProduct(n, x_d, y_d, &local_result);
+  ((TxVectorOptimizationDataBase*)x.optimizationData)->computeDotProduct(n, x_d, y_d, &local_result);
+
 #ifndef HPCG_NOMPI
   double t0 = mytimer();
   double global_result = 0.0;

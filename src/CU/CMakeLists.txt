@@ -4,9 +4,7 @@ set(CUTxHPCG_SOURCES
     ComputeDotProduct.cpp
     MatrixOptimizationDataTx.cpp
     VectorOptimizationDataTx.cpp
-    OptimizeProblem.cpp
     ExchangeHalo.cpp
-    ${HPCG_SOURCE_DIR}/GenerateCoarseProblem.cpp
     )
 set(CUTxHPCG_SOURCES_CU
     Kernels.cu

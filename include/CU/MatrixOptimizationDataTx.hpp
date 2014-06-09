@@ -8,6 +8,7 @@
 
 #include "SparseMatrix.hpp"
 #include "Vector.hpp"
+#include <TxMatrixOptimizationDataBase.hpp>
 
 /**
  * @brief Class with Tx implementations and data for HPCG
@@ -17,11 +18,11 @@
  *
  * @sa SparseMatrix, Vector, VectorOptimizationDataTx
  * */
-class MatrixOptimizationDataTx {
+class MatrixOptimizationDataTx : public TxMatrixOptimizationDataBase {
  public:
   MatrixOptimizationDataTx();
   ~MatrixOptimizationDataTx();
-  int setupLocalMatrixOnGPU(SparseMatrix &A);
+  int ingestLocalMatrix(SparseMatrix &A);
 
   int ComputeSPMV(const SparseMatrix& A, Vector& x, Vector& y,
                   bool copyIn = true, bool copyOut = true);

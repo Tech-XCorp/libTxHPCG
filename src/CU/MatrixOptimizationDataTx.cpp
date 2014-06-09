@@ -1,8 +1,8 @@
-#include <MatrixOptimizationDataTx.hpp>
+#include <CU/MatrixOptimizationDataTx.hpp>
 #include <SparseMatrix.hpp>
 #include <KernelWrappers.h>
-#include <chkcudaerror.hpp>
-#include <VectorOptimizationDataTx.hpp>
+#include <CU/chkcudaerror.hpp>
+#include <CU/VectorOptimizationDataTx.hpp>
 #include <config.h>
 
 #ifndef HPCG_NOMPI
@@ -49,7 +49,7 @@ MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
 #endif
 }
 
-int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
+int MatrixOptimizationDataTx::ingestLocalMatrix(SparseMatrix& A) {
   std::vector<local_int_t> i(A.localNumberOfRows + 1, 0);
   // Slight overallocation for these arrays
   std::vector<local_int_t> j;
@@ -77,7 +77,7 @@ int MatrixOptimizationDataTx::setupLocalMatrixOnGPU(SparseMatrix& A) {
     i[m + 1] = i[m] + nonzerosInRow;
   }
 
-  // Setup SpMV data on GPU
+  // Setup SpMV data on Device
   cudaError_t err = cudaSuccess;
   int* i_d;
   err = cudaMalloc((void**)&i_d, i.size() * sizeof(i[0]));
@@ -179,11 +179,13 @@ int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
   double* x_dev = 0;
   double* y_dev = 0;
   if (copyIn) {
-    x_dev = transferDataToGPU(x);
-    y_dev = transferDataToGPU(y);
+    transferDataToDevice(x);
+    x_dev = (double*)((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    transferDataToDevice(y);
+    y_dev = (double*)((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
   } else {
-    x_dev = ((VectorOptimizationDataTx*)x.optimizationData)->devicePtr;
-    y_dev = ((VectorOptimizationDataTx*)y.optimizationData)->devicePtr;
+    x_dev = (double*)((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    y_dev = (double*)((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
   }
 #ifndef HPCG_NOMPI
   DataTransfer transfer = BeginExchangeHalo(A, x);
@@ -199,7 +201,7 @@ int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
   scatterFromHalo.spmv(x_dev, y_dev);
 #endif
   if (copyOut) {
-    transferDataFromGPU(y);
+    transferDataFromDevice(y);
   } else {
     cudaError_t err = cudaDeviceSynchronize();
     CHKCUDAERR(err);
@@ -214,11 +216,13 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
   const double* r_dev = 0;  
   double* x_dev = 0;
   if (copyIn) {
-    x_dev = transferDataToGPU(x);
-    r_dev = transferDataToGPU(r);
+    transferDataToDevice(x);
+    x_dev = (double*)((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    transferDataToDevice(r);
+    r_dev = (double*)((TxVectorOptimizationDataBase*)r.optimizationData)->getDevicePtr();
   } else {
-    x_dev = ((VectorOptimizationDataTx*)x.optimizationData)->devicePtr;
-    r_dev = ((VectorOptimizationDataTx*)r.optimizationData)->devicePtr;
+    x_dev = (double*)((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    r_dev = (double*)((TxVectorOptimizationDataBase*)r.optimizationData)->getDevicePtr();
   }
 #ifndef HPCG_NOMPI
   DataTransfer transfer = BeginExchangeHalo(A, x);
@@ -231,7 +235,7 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
                              numberOfSmootherSteps, gsContext);
   CHKGELUSERR(err);
   if (copyOut) {
-    transferDataFromGPU(x);
+    transferDataFromDevice(x);
   } else {
     cudaError_t cerr = cudaDeviceSynchronize();
     CHKCUDAERR(cerr);
@@ -244,19 +248,21 @@ int MatrixOptimizationDataTx::ComputeProlongation(const SparseMatrix& Af,
   double* xf_d = 0;
   double* xc_d = 0;
   if (copyIn) {
-    xf_d = transferDataToGPU(xf);
-    xc_d = transferDataToGPU(*Af.mgData->xc);
+    transferDataToDevice(xf);
+    xf_d= (double*)((TxVectorOptimizationDataBase*)xf.optimizationData)->getDevicePtr();
+    transferDataToDevice(*Af.mgData->xc);
+    xc_d = (double*)((TxVectorOptimizationDataBase*)(*Af.mgData->xc).optimizationData)->getDevicePtr();
   } else {
-    xf_d = ((VectorOptimizationDataTx*)xf.optimizationData)->devicePtr;
-    xc_d = ((VectorOptimizationDataTx*)Af.mgData->xc->optimizationData)->devicePtr;
+    xf_d= (double*)((TxVectorOptimizationDataBase*)xf.optimizationData)->getDevicePtr();
+    xc_d = (double*)((TxVectorOptimizationDataBase*)(*Af.mgData->xc).optimizationData)->getDevicePtr();
   }
 
   local_int_t nc = Af.mgData->rc->localLength;
   launchProlongationKernel(xf_d, xc_d, nc, f2c); 
 
   if (copyOut) {
-    transferDataFromGPU(xf);
-    transferDataFromGPU(*Af.mgData->xc);
+    transferDataFromDevice(xf);
+    transferDataFromDevice(*Af.mgData->xc);
   }
   return 0;
 }
@@ -268,22 +274,25 @@ int MatrixOptimizationDataTx::ComputeRestriction(const SparseMatrix& Af,
   double* rf_d = 0;
   double* rc_d = 0;
   if (copyIn) {
-    Axf_d = transferDataToGPU(*Af.mgData->Axf);
-    rf_d = transferDataToGPU(rf);
-    rc_d = transferDataToGPU(*Af.mgData->rc);
+    transferDataToDevice(*Af.mgData->Axf);
+    Axf_d = (double*)((TxVectorOptimizationDataBase*)(*Af.mgData->Axf).optimizationData)->getDevicePtr();
+    transferDataToDevice(rf);
+    rf_d = (double*)((TxVectorOptimizationDataBase*)rf.optimizationData)->getDevicePtr();
+    transferDataToDevice(*Af.mgData->rc);
+    rc_d = (double*)((TxVectorOptimizationDataBase*)(*Af.mgData->rc).optimizationData)->getDevicePtr();
   } else {
-    Axf_d = ((VectorOptimizationDataTx*)Af.mgData->Axf->optimizationData)->devicePtr;
-    rf_d = ((VectorOptimizationDataTx*)rf.optimizationData)->devicePtr;
-    rc_d = ((VectorOptimizationDataTx*)Af.mgData->rc->optimizationData)->devicePtr;
+    Axf_d = (double*)((TxVectorOptimizationDataBase*)(*Af.mgData->Axf).optimizationData)->getDevicePtr();
+    rf_d = (double*)((TxVectorOptimizationDataBase*)rf.optimizationData)->getDevicePtr();
+    rc_d = (double*)((TxVectorOptimizationDataBase*)(*Af.mgData->rc).optimizationData)->getDevicePtr();
   }
 
   local_int_t nc = Af.mgData->rc->localLength;
   launchRestrictionKernel(rc_d, rf_d, Axf_d, nc, f2c); 
 
   if (copyOut) {
-    transferDataFromGPU(*Af.mgData->Axf);
-    transferDataFromGPU(rf);
-    transferDataFromGPU(*Af.mgData->rc);
+    transferDataFromDevice(*Af.mgData->Axf);
+    transferDataFromDevice(rf);
+    transferDataFromDevice(*Af.mgData->rc);
   }
   return 0;
 }

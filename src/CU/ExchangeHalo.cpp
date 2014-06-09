@@ -19,9 +19,9 @@
 #include <cstdlib>
 #include <vector>
 #include "KernelWrappers.h"
-#include <chkcudaerror.hpp>
-#include <MatrixOptimizationDataTx.hpp>
-#include <VectorOptimizationDataTx.hpp>
+#include <CU/chkcudaerror.hpp>
+#include <CU/MatrixOptimizationDataTx.hpp>
+#include <CU/VectorOptimizationDataTx.hpp>
 #include <config.h>
 
 struct DataTransfer_ {
@@ -55,7 +55,7 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   VectorOptimizationDataTx *vOptData =
     (VectorOptimizationDataTx*)x.optimizationData;
 #ifdef HAVE_GPU_AWARE_MPI
-  double *x_external = vOptData->devicePtr + localNumberOfRows;
+  double *x_external = (double*)vOptData->getDevicePtr() + localNumberOfRows;
 #else
   double *x_external = x.values + localNumberOfRows;
 #endif
@@ -71,7 +71,7 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
 
   MatrixOptimizationDataTx *optData =
       (MatrixOptimizationDataTx *)A.optimizationData;
-  launchScatter(optData->getSendBuffer_d(), vOptData->devicePtr,
+  launchScatter(optData->getSendBuffer_d(), (const double*)vOptData->getDevicePtr(),
                 optData->getElementsToSend_d(), totalToBeSent);
 #ifdef HAVE_GPU_AWARE_MPI
 #else

@@ -22,10 +22,9 @@ void VectorOptimizationDataTx::transferDataToDevice(const Vector& v) {
       cudaMemcpy(devicePtr, v.values, sizeof(double) * v.localLength,
                  cudaMemcpyHostToDevice);
   CHKCUDAERR(err);
-  return opt->devicePtr;
 }
 
-void VectorOptimizationDataTx::transferDataFromDevice(const Vector& v) {
+void VectorOptimizationDataTx::transferDataFromDevice(Vector& v) {
   cudaError_t err = 
       cudaMemcpy(v.values, devicePtr, sizeof(double) * v.localLength,
                  cudaMemcpyDeviceToHost);
@@ -37,11 +36,12 @@ void* VectorOptimizationDataTx::getDevicePtr() {
 }
 
 int VectorOptimizationDataTx::computeWAXPBY(
-    int n, double alpha, void* x, double beta, void* y, void* w) {
-  launchComputeWAXPBY(n, alpha, x, beta, y, w);
+    int n, double alpha, const void* x, double beta, const void* y, void* w) const {
+  launchComputeWAXPBY(n, alpha, (const double*)x, beta, (const double*)y, (double*)w);
+  return 0;
 }
 
 void VectorOptimizationDataTx::computeDotProduct(
-    int n, const void* x, const void* y, double* result) {
-  launchComputeDotProduct(n, x, y, result);
+    int n, const void* x, const void* y, double* result) const {
+  launchComputeDotProduct(n, (const double*)x, (const double*)y, result);
 }

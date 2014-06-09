@@ -15,8 +15,8 @@ class VectorOptimizationDataTx : public TxVectorOptimizationDataBase{
   public:
     void ZeroVector(int N);
     virtual void freeResources();
-    virtual void transferDataToDevice(const double*);
-    virtual void transferDataFromDevice(double*);
+    virtual void transferDataToDevice(const Vector&);
+    virtual void transferDataFromDevice(Vector&);
     virtual void copyDeviceData(void* dest, int numEntries) = 0;
     virtual int computeWAXPBY(int n, double alpha, const void* x, double beta, const void* y, void* w) const = 0;
     virtual void computeDotProduct(int n, const void* x, const void* y, double* result) const = 0;

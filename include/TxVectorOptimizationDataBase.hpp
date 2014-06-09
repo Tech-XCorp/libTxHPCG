@@ -8,8 +8,8 @@ class TxVectorOptimizationDataBase {
   public:
     virtual void ZeroVector(int N) = 0;
     virtual void freeResources() = 0;
-    virtual void transferDataToDevice(const double*) = 0;
-    virtual void transferDataFromDevice(double*) = 0;
+    virtual void transferDataToDevice(const Vector&) = 0;
+    virtual void transferDataFromDevice(Vector&) = 0;
     virtual void copyDeviceData(void* dest, int numEntries) = 0;
     virtual int computeWAXPBY(int n, double alpha, const void* x, double beta, const void* y, void* w) const = 0;
     virtual void computeDotProduct(int n, const void* x, const void* y, double* result) const = 0;

@@ -14,6 +14,7 @@ class TxVectorOptimizationDataBase {
     virtual int computeWAXPBY(int n, double alpha, const void* x, double beta, const void* y, void* w) const = 0;
     virtual void computeDotProduct(int n, const void* x, const void* y, double* result) const = 0;
     virtual void* getDevicePtr() = 0;
+    virtual TxVectorOptimizationDataBase* create() = 0;
 };
 
 /**

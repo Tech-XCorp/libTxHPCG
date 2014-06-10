@@ -5,6 +5,9 @@
 #include <CU/TxVectorOptimizationDataCU.hpp>
 #include <config.h>
 
+#include <Backend.hpp>
+#include <BackendRegistry.hpp>
+
 #ifndef HPCG_NOMPI
 #include <ExchangeHalo.hpp>
 #include <mpi.h>
@@ -296,6 +299,10 @@ int TxMatrixOptimizationDataCU::ComputeRestriction(const SparseMatrix& Af,
   return 0;
 }
 
+TxMatrixOptimizationDataCU* TxMatrixOptimizationDataCU::create() {
+  return new TxMatrixOptimizationDataCU;
+}
+
 void dumpMatrix(std::ostream& s, const std::vector<int>& i,
     const std::vector<int>& j, const std::vector<double>& a)
 {
@@ -319,3 +326,15 @@ int* TxMatrixOptimizationDataCU::getElementsToSend_d() {
   return elementsToSend;
 }
 #endif
+
+class TxMatrixOptimizationDataCURegistration {
+  public:
+    TxMatrixOptimizationDataCURegistration() :
+      b(new TxMatrixOptimizationDataCU, new TxVectorOptimizationDataCU) {
+        BackendRegistry::addBackend("Tech-X CUDA backend", b);
+      }
+  private:
+    Backend b;
+};
+
+static TxVectorOptimizationDataCU registerTxMatrixOptimizationDataCU;

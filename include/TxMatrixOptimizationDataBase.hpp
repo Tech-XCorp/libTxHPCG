@@ -24,6 +24,7 @@ class TxMatrixOptimizationDataBase {
    virtual int ComputeRestriction(const SparseMatrix& Af, const Vector& rf,
        bool copyIn, bool copyOut) = 0;
    virtual ~TxMatrixOptimizationDataBase() {}
+   virtual TxMatrixOptimizationDataBase* create() = 0;
 
  private:
 // Disallow copying to prevent slicing

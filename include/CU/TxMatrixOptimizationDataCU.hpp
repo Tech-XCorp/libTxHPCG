@@ -22,20 +22,22 @@
 class TxMatrixOptimizationDataCU : public TxMatrixOptimizationDataBase {
  public:
   TxMatrixOptimizationDataCU();
-  ~TxMatrixOptimizationDataCU();
-  int ingestLocalMatrix(SparseMatrix &A);
+  virtual ~TxMatrixOptimizationDataCU();
+  virtual int ingestLocalMatrix(SparseMatrix &A);
 
-  int ComputeSPMV(const SparseMatrix& A, Vector& x, Vector& y,
+  virtual int ComputeSPMV(const SparseMatrix& A, Vector& x, Vector& y,
                   bool copyIn = true, bool copyOut = true);
-  int ComputeSYMGS(const SparseMatrix& A, const Vector& x, Vector& y,
+  virtual int ComputeSYMGS(const SparseMatrix& A, const Vector& x, Vector& y,
                    int numberOfSmootherSteps = 1, bool copyIn = true,
                    bool copyOut = true);
-  int ComputeProlongation(const SparseMatrix& Af, Vector& xf, bool copyIn,
+  virtual int ComputeProlongation(const SparseMatrix& Af, Vector& xf, bool copyIn,
                           bool copyOut);
-  int ComputeRestriction(const SparseMatrix& Af, const Vector& rf, bool copyIn,
+  virtual int ComputeRestriction(const SparseMatrix& Af, const Vector& rf, bool copyIn,
                          bool copyOut);
   double* getSendBuffer_d();
   int* getElementsToSend_d();
+
+  virtual TxMatrixOptimizationDataCU* create();
 
  private:
   cusparseHandle_t handle;              //!< cusparse context

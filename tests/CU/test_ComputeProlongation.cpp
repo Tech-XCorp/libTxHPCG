@@ -5,9 +5,10 @@ using namespace boost::unit_test;
 #include <Vector.hpp>
 #include <SparseMatrix.hpp>
 #include <ComputeProlongation.hpp>
-#include <MatrixOptimizationDataTx.hpp>
+#include <CU/TxMatrixOptimizationDataCU.hpp>
 
 #include <testUtils.hpp>
+#include <testUtilsCU.hpp>
 
 /**
  * @brief Reference implementation of restriction.
@@ -22,20 +23,20 @@ int ComputeProlongation_ref(const SparseMatrix & Af, Vector & xf) {
   local_int_t nc = Af.mgData->rc->localLength;
 
   for (local_int_t i=0; i<nc; ++i) xfv[f2c[i]] += xcv[i];
-
-  return(0);
+  return 0;
 }
 
 /**
  * @brief Compare restriction with reference implementation.
  * */
+
 void testComputeProlongation(Dims d) {
   BOOST_REQUIRE_EQUAL(0, d.nx % 2);
   BOOST_REQUIRE_EQUAL(0, d.ny % 2);
   BOOST_REQUIRE_EQUAL(0, d.nz % 2);
   int n = d.nx * d.ny * d.nz;
   BOOST_REQUIRE_EQUAL(0, n % 8);
-  SparseMatrix m = buildSparseMatrix(d.nx, d.ny, d.nz);
+  SparseMatrix m = buildSparseMatrixCU(d.nx, d.ny, d.nz);
   Vector xf_ref;
   InitializeVector(xf_ref, n);
   FillRandomVector(xf_ref);

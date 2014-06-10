@@ -1,5 +1,5 @@
-#ifndef VECTOR_OPTIMIZATION_DATA_TX_HPP
-#define VECTOR_OPTIMIZATION_DATA_TX_HPP
+#ifndef TX_VECTOR_OPTIMIZATION_DATA_CU_HPP
+#define TX_VECTOR_OPTIMIZATION_DATA_CU_HPP
 
 #include <TxVectorOptimizationDataBase.hpp>
 
@@ -9,9 +9,9 @@
  * Instances of this class are stored in the optimizationData
  * pointer of the HPCG Vector class.
  *
- * @sa Vector, SparseMatrix, MatrixOptimizationDataTx
+ * @sa Vector, SparseMatrix, TxMatrixOptimizationDataBase
  * */
-class VectorOptimizationDataTx : public TxVectorOptimizationDataBase{
+class TxVectorOptimizationDataCU : public TxVectorOptimizationDataBase {
   public:
     void ZeroVector(int N);
     virtual void freeResources();

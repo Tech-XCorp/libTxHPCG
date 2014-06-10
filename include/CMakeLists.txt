@@ -8,8 +8,6 @@ set(TxHPCG_HEADERS
     ComputeSYMGS.hpp
     ComputeWAXPBY.hpp
     ExchangeHalo.hpp
-    MatrixOptimizationDataTx.hpp
-    VectorOptimizationDataTx.hpp
    )
 
 install(FILES ${TxHPCG_HEADERS} DESTINATION include)

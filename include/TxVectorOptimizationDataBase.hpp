@@ -31,7 +31,7 @@ void freeResources(TxVectorOptimizationDataBase*);
  *
  * @sa transferDataFromDevice
  * */
-double* transferDataToDevice(const Vector& v);
+void* transferDataToDevice(const Vector& v);
 
 /**
  * @brief Transfer data from device to host.
@@ -40,6 +40,6 @@ double* transferDataToDevice(const Vector& v);
  *
  * @sa transferDataToDevice
  * */
-void transferDataFromDevice(const Vector& v);
+void transferDataFromDevice(Vector& v);
 
 #endif

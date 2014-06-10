@@ -1,5 +1,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_library(testUtilsCU
+    testUtilsCU.cpp 
+    )
 set(TxHPCG_TESTS
     test_CPCSR
     test_ComputeRestriction
@@ -15,8 +18,10 @@ set(TxHPCG_PAR_TESTS
 foreach(t ${TxHPCG_TESTS} ${TxHPCG_PAR_TESTS})
   add_executable(${t} ${t}.cpp)
   target_link_libraries(${t}
+      testUtilsCU
       testUtils
       TxHPCG
+      CUTxHPCG
       ${Gelus_LIBRARIES}
       ${CUDA_cusparse_LIBRARY}
       ${CUDA_LIBRARIES}

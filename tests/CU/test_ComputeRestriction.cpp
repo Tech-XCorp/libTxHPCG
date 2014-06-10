@@ -5,9 +5,10 @@ using namespace boost::unit_test;
 #include <Vector.hpp>
 #include <SparseMatrix.hpp>
 #include <ComputeRestriction.hpp>
-#include <MatrixOptimizationDataTx.hpp>
+#include <CU/TxMatrixOptimizationDataCU.hpp>
 
 #include <testUtils.hpp>
+#include <testUtilsCU.hpp>
 
 /**
  * @brief Reference implementation of restriction.
@@ -38,7 +39,7 @@ void testComputeRestriction(Dims d) {
   int n = d.nx * d.ny * d.nz;
   BOOST_REQUIRE_EQUAL(0, n % 8);
   int nCoarse = n / 8;
-  SparseMatrix m = buildSparseMatrix(d.nx, d.ny, d.nz);
+  SparseMatrix m = buildSparseMatrixCU(d.nx, d.ny, d.nz);
   Vector rf;
   InitializeVector(rf, n);
   FillRandomVector(rf);

@@ -1,8 +1,8 @@
-#include <CU/MatrixOptimizationDataTx.hpp>
+#include <CU/TxMatrixOptimizationDataCU.hpp>
 #include <SparseMatrix.hpp>
 #include <KernelWrappers.h>
 #include <CU/chkcudaerror.hpp>
-#include <CU/VectorOptimizationDataTx.hpp>
+#include <CU/TxVectorOptimizationDataCU.hpp>
 #include <config.h>
 
 #ifndef HPCG_NOMPI
@@ -10,7 +10,7 @@
 #include <mpi.h>
 #endif
 
-MatrixOptimizationDataTx::MatrixOptimizationDataTx()
+TxMatrixOptimizationDataCU::TxMatrixOptimizationDataCU()
     : handle(0), matDescr(0), localMatrix(0), gsContext(0), f2c(0),
       workvector(0) {
   cusparseStatus_t err = cusparseCreate(&handle);
@@ -20,7 +20,7 @@ MatrixOptimizationDataTx::MatrixOptimizationDataTx()
 #endif
 }
 
-MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
+TxMatrixOptimizationDataCU::~TxMatrixOptimizationDataCU() {
   if (handle) {
     cusparseDestroy(handle);
     handle = 0;
@@ -49,7 +49,7 @@ MatrixOptimizationDataTx::~MatrixOptimizationDataTx() {
 #endif
 }
 
-int MatrixOptimizationDataTx::ingestLocalMatrix(SparseMatrix& A) {
+int TxMatrixOptimizationDataCU::ingestLocalMatrix(SparseMatrix& A) {
   std::vector<local_int_t> i(A.localNumberOfRows + 1, 0);
   // Slight overallocation for these arrays
   std::vector<local_int_t> j;
@@ -173,7 +173,7 @@ int MatrixOptimizationDataTx::ingestLocalMatrix(SparseMatrix& A) {
   return (int)cerr | (int)gerr | (int)err;
 }
 
-int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
+int TxMatrixOptimizationDataCU::ComputeSPMV(const SparseMatrix& A, Vector& x,
     Vector& y, bool copyIn,
     bool copyOut) {
   double* x_dev = 0;
@@ -209,7 +209,7 @@ int MatrixOptimizationDataTx::ComputeSPMV(const SparseMatrix& A, Vector& x,
   return 0;
 }
 
-int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
+int TxMatrixOptimizationDataCU::ComputeSYMGS(const SparseMatrix &A,
                                            const Vector &r, Vector &x,
                                            int numberOfSmootherSteps,
                                            bool copyIn, bool copyOut) {
@@ -243,7 +243,7 @@ int MatrixOptimizationDataTx::ComputeSYMGS(const SparseMatrix &A,
   return 0;
 }
 
-int MatrixOptimizationDataTx::ComputeProlongation(const SparseMatrix& Af,
+int TxMatrixOptimizationDataCU::ComputeProlongation(const SparseMatrix& Af,
     Vector& xf, bool copyIn, bool copyOut) {
   double* xf_d = 0;
   double* xc_d = 0;
@@ -267,7 +267,7 @@ int MatrixOptimizationDataTx::ComputeProlongation(const SparseMatrix& Af,
   return 0;
 }
 
-int MatrixOptimizationDataTx::ComputeRestriction(const SparseMatrix& Af,
+int TxMatrixOptimizationDataCU::ComputeRestriction(const SparseMatrix& Af,
                                                  const Vector& rf, bool copyIn,
                                                  bool copyOut) {
   double* Axf_d = 0;
@@ -291,7 +291,6 @@ int MatrixOptimizationDataTx::ComputeRestriction(const SparseMatrix& Af,
 
   if (copyOut) {
     transferDataFromDevice(*Af.mgData->Axf);
-    transferDataFromDevice(rf);
     transferDataFromDevice(*Af.mgData->rc);
   }
   return 0;
@@ -312,11 +311,11 @@ void dumpMatrix(std::ostream& s, const std::vector<int>& i,
 }
 
 #ifndef HPCG_NOMPI
-double* MatrixOptimizationDataTx::getSendBuffer_d() {
+double* TxMatrixOptimizationDataCU::getSendBuffer_d() {
   return sendBuffer_d;
 }
 
-int* MatrixOptimizationDataTx::getElementsToSend_d() {
+int* TxMatrixOptimizationDataCU::getElementsToSend_d() {
   return elementsToSend;
 }
 #endif

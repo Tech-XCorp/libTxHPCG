@@ -6,6 +6,8 @@ set(TxHPCG_SOURCES
     ComputeSPMV.cpp
     ComputeSYMGS.cpp
     ComputeWAXPBY.cpp
+    OptimizeProblem.cpp
+    TxVectorOptimizationDataBase.cpp
     ${HPCG_SOURCE_DIR}/GenerateCoarseProblem.cpp
     )
 add_library(TxHPCG

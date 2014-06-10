@@ -1,12 +1,8 @@
-#ifndef TEST_UTILS_H
-#define TEST_UTILS_H
+#ifndef TEST_UTILS_HPP
+#define TEST_UTILS_HPP
 
 #include <SparseMatrix.hpp>
 
-/**
- * @brief Construction of minimal sparse matrix for unit  tests.
- * */
-SparseMatrix buildSparseMatrix(int nXFine, int nYFine, int nZFine);
 
 /**
  * @brief Functions for required floating point accuracy.

@@ -20,8 +20,7 @@
 
 #include "OptimizeProblem.hpp"
 
-#include "MatrixOptimizationDataTx.hpp"
-#include "VectorOptimizationDataTx.hpp"
+#include "TxMatrixOptimizationDataBase.hpp"
 #include <cusparse_v2.h>
 #include <cuda_runtime.h>
 
@@ -48,8 +47,8 @@ int OptimizeProblem(SparseMatrix &A, CGData &data, Vector &b, Vector &x,
   int err = 0;
   SparseMatrix* m = &A;
   while (m) {
-    MatrixOptimizationDataTx *optimizationData = new MatrixOptimizationDataTx;
-    err = optimizationData->setupLocalMatrixOnGPU(*m);
+    TxMatrixOptimizationDataBase *optimizationData = 0;
+    err = optimizationData->ingestLocalMatrix(*m);
     m->optimizationData = optimizationData;
     m = m->Ac;
   }

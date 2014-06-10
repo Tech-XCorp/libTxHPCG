@@ -13,10 +13,8 @@ int ComputeDotProduct(const local_int_t n, const Vector & x, const Vector & y,
   const void* x_d;
   const void* y_d;
   if (copyIn) {
-    transferDataToDevice(x);
-    x_d = ((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
-    transferDataToDevice(y);
-    y_d = ((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
+    x_d = (double*)transferDataToDevice(x);
+    y_d = (double*)transferDataToDevice(y);
   } else {
     x_d = ((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
     y_d = ((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();

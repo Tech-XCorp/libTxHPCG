@@ -1,5 +1,5 @@
-#ifndef MATRIX_OPTIMIZATION_DATA_HPP
-#define MATRIX_OPTIMIZATION_DATA_HPP
+#ifndef TX_MATRIX_OPTIZATION_DATA_HPP
+#define TX_MATRIX_OPTIZATION_DATA_HPP
 
 #include <cusparse_v2.h>
 #include <cuGelus.h>
@@ -16,12 +16,13 @@
  * Instances of this class are stored in the optimizationData
  * pointer of the HPCG SparseMatrix class.
  *
- * @sa SparseMatrix, Vector, VectorOptimizationDataTx
+ * @sa SparseMatrix, Vector, TxVectorOptimizationDataBase,
+ * TxMatrixOptimizationDataBase
  * */
-class MatrixOptimizationDataTx : public TxMatrixOptimizationDataBase {
+class TxMatrixOptimizationDataCU : public TxMatrixOptimizationDataBase {
  public:
-  MatrixOptimizationDataTx();
-  ~MatrixOptimizationDataTx();
+  TxMatrixOptimizationDataCU();
+  ~TxMatrixOptimizationDataCU();
   int ingestLocalMatrix(SparseMatrix &A);
 
   int ComputeSPMV(const SparseMatrix& A, Vector& x, Vector& y,
@@ -52,8 +53,8 @@ class MatrixOptimizationDataTx : public TxMatrixOptimizationDataBase {
   double* workvector;  //!< Work space for SYMGS
 
   // Disallow copy and assignment
-  MatrixOptimizationDataTx(const MatrixOptimizationDataTx&);
-  MatrixOptimizationDataTx& operator=(const MatrixOptimizationDataTx&);
+  TxMatrixOptimizationDataCU(const TxMatrixOptimizationDataCU&);
+  TxMatrixOptimizationDataCU& operator=(const TxMatrixOptimizationDataCU&);
 };
 
 void dumpMatrix(std::ostream& s, const std::vector<int>& i,

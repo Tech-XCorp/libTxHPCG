@@ -45,3 +45,15 @@ void TxVectorOptimizationDataCU::computeDotProduct(
     int n, const void* x, const void* y, double* result) const {
   launchComputeDotProduct(n, (const double*)x, (const double*)y, result);
 }
+
+void TxVectorOptimizationDataCU::copyDeviceData(void* dest, int numEntries)
+{
+  cudaError_t err = cudaMemcpy(dest, devicePtr, numEntries * sizeof(double),
+      cudaMemcpyDeviceToDevice);
+  CHKCUDAERR(err);
+}
+
+TxVectorOptimizationDataCU* TxVectorOptimizationDataCU::create()
+{
+  return new TxVectorOptimizationDataCU;
+}

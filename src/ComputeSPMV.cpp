@@ -18,7 +18,6 @@
  HPCG routine
  */
 
-#include <cuda_runtime.h>
 #include <iostream>
 
 #include "ComputeSPMV.hpp"

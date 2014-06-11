@@ -6,3 +6,6 @@
 
 #cmakedefine HPCG_NOMPI
 
+// The optimized backend to use (see BackendFactory.hpp for available choices)
+#cmakedefine OPTIMIZED_BACKEND "@OPTIMIZED_BACKEND@"
+

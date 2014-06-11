@@ -5,6 +5,7 @@ set(CUTxHPCG_SOURCES
     TxMatrixOptimizationDataCU.cpp
     TxVectorOptimizationDataCU.cpp
     ExchangeHalo.cpp
+    CUBackendRegistration.cpp
     )
 set(CUTxHPCG_SOURCES_CU
     Kernels.cu

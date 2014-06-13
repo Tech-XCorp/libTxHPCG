@@ -24,7 +24,8 @@ option(ENABLE_MEMCHECK "Enables testing to use valgrind to track memory leaks in
 option(ENABLE_GPU_AWARE_MPI "Enables GPU aware MPI." ON)
 
 if(BUILD_CU_TXHPCG)
-  set(OPTIMIZED_BACKEND "Tech-X CUDA Backend")
+  set(HAVE_CU_BACKEND TRUE)
+  set(OPTIMIZED_BACKEND_NAME "Tech-X CUDA backend")
   if (ENABLE_GPU_AWARE_MPI)
     set(HAVE_GPU_AWARE_MPI TRUE)
   endif ()

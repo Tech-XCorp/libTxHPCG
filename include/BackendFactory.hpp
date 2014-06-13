@@ -1,18 +1,15 @@
 #ifndef BACKEND_FACTORY_HPP
 #define BACKEND_FACTORY_HPP
 
-#include <TxMatrixOptimizationDataBase.hpp>
-#include <TxVectorOptimizationDataBase.hpp>
+class TxMatrixOptimizationDataBase;
+class TxVectorOptimizationDataBase;
 #include <config.h>
 
-// Available Backends:
-#define BACKEND_TX_CUDA "Tech-X CUDA Backend"
-
 // The backend choosen at configure time
-#if !defined(OPTIMIZED_BACKEND)
-#error "OPTIMIZED_BACKEND not defined. libTxHPCG will not work without this!"
+#if !defined(OPTIMIZED_BACKEND_NAME)
+#error "OPTIMIZED_BACKEND_NAME not defined. libTxHPCG will not work without this!"
 #endif
-#define BACKEND_TO_USE OPTIMIZED_BACKEND
+#define BACKEND_TO_USE OPTIMIZED_BACKEND_NAME
 
 TxMatrixOptimizationDataBase* getMatrixOptimizationData(const char* backendName);
 TxVectorOptimizationDataBase* getVectorOptimizationData(const char* backendName);

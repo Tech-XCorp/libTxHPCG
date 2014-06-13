@@ -7,6 +7,7 @@ typedef struct Vector_STRUCT Vector;
 class TxVectorOptimizationDataBase {
   public:
     virtual void ZeroVector(int N) = 0;
+    virtual void allocateResources(int N) = 0;
     virtual void freeResources() = 0;
     virtual void transferDataToDevice(const Vector&) = 0;
     virtual void transferDataFromDevice(Vector&) = 0;

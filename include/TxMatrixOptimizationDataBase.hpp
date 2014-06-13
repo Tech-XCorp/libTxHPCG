@@ -1,8 +1,10 @@
 #ifndef TX_MATRIX_OPTIMIZATION_DATA_BASE_HPP
 #define TX_MATRIX_OPTIMIZATION_DATA_BASE_HPP
 
-#include <SparseMatrix.hpp>
-#include <Vector.hpp>
+struct SparseMatrix_STRUCT;
+typedef struct SparseMatrix_STRUCT SparseMatrix;
+struct Vector_STRUCT;
+typedef struct Vector_STRUCT Vector;
 
 /**
  * @brief Interface for Tech-X matrix optimization data.

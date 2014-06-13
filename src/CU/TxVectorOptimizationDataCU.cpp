@@ -7,13 +7,26 @@
 #include <Vector.hpp>
 #include <CU/KernelWrappers.h>
 
+TxVectorOptimizationDataCU::~TxVectorOptimizationDataCU() {
+  if (devicePtr) {
+    cudaFree(devicePtr);
+  }
+}
+
 void TxVectorOptimizationDataCU::ZeroVector(int n) {
   launchZeroVector(devicePtr, n);
 }
 
+void TxVectorOptimizationDataCU::allocateResources(int n) {
+  freeResources();
+  cudaError_t err = cudaMalloc((void**)&devicePtr, n * sizeof(double));
+  CHKCUDAERR(err);
+}
+
 void TxVectorOptimizationDataCU::freeResources() {
   if (devicePtr) {
-    cudaFree(devicePtr);
+    cudaError_t err = cudaFree(devicePtr);
+    CHKCUDAERR(err);
   }
 }
 

@@ -13,7 +13,10 @@
  * */
 class TxVectorOptimizationDataCU : public TxVectorOptimizationDataBase {
   public:
-    void ZeroVector(int N);
+    TxVectorOptimizationDataCU() : devicePtr(0) {}
+    virtual ~TxVectorOptimizationDataCU();
+    virtual void ZeroVector(int N);
+    virtual void allocateResources(int N);
     virtual void freeResources();
     virtual void transferDataToDevice(const Vector&);
     virtual void transferDataFromDevice(Vector&);
@@ -24,6 +27,8 @@ class TxVectorOptimizationDataCU : public TxVectorOptimizationDataBase {
     virtual TxVectorOptimizationDataCU* create();
   private:
     double* devicePtr;
+    TxVectorOptimizationDataCU(const TxVectorOptimizationDataCU&);
+    TxVectorOptimizationDataCU& operator=(const TxVectorOptimizationDataCU&);
 };
 
 #endif

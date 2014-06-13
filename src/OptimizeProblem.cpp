@@ -47,10 +47,11 @@ int OptimizeProblem(SparseMatrix &A, CGData &data, Vector &b, Vector &x,
   int err = 0;
   SparseMatrix* m = &A;
   while (m) {
-    TxMatrixOptimizationDataBase *optimizationData = getMatrixOptimizationData(BACKEND_TO_USE);
+    TxMatrixOptimizationDataBase *optimizationData = 
+      getMatrixOptimizationData(BACKEND_TO_USE);
     if (!optimizationData) {
-      throw std::runtime_error(std::string("Unknown backend ") +
-          std::string(BACKEND_TO_USE));
+      throw std::runtime_error(std::string("Unknown backend \"") +
+          std::string(BACKEND_TO_USE) + std::string("\"."));
     }
     err = optimizationData->ingestLocalMatrix(*m);
     m->optimizationData = optimizationData;

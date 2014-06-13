@@ -12,9 +12,19 @@ add_library(testUtils
     ${HPCG_SOURCE_DIR}/ComputeDotProduct_ref.cpp
     ${HPCG_SOURCE_DIR}/mytimer.cpp
     )
+
+set(TxHPCG_LIBS
+    TxHPCG)
+if(BUILD_CU_TXHPCG)
+  list(APPEND TxHPCG_LIBS CUTxHPCG)
+endif()
+if(BUILD_OCL_TXHPCG)
+  list(APPEND TxHPCG_LIBS OCLTXHPCG)
+endif()
+
 target_link_libraries(
     testUtils 
-    TxHPCG
+    ${TxHPCG_LIBS}
     )
 set(TxHPCG_TESTS
     test_TestUtils
@@ -30,9 +40,13 @@ foreach(t ${TxHPCG_TESTS} ${TxHPCG_PAR_TESTS})
   add_executable(${t} ${t}.cpp)
   target_link_libraries(${t}
       testUtils
-      TxHPCG
+      ${TxHPCG_LIBS}
       ${Boost_LIBRARIES}
       )
+  if(BUILD_CU_TXHPCG)
+    target_link_libraries(${t} ${CUDA_cusparse_LIBRARY}
+        ${CUDA_LIBRARIES})
+  endif()
 endforeach()
 foreach(t ${TxHPCG_TESTS})
   add_test(${t} ${t})

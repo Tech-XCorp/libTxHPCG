@@ -121,9 +121,6 @@ int TxMatrixOptimizationDataCU::ingestLocalMatrix(SparseMatrix& A) {
   CHKCUDAERR(err);
   err = cudaMalloc((void**)&sendBuffer_d, A.totalToBeSent * sizeof(double));
   CHKCUDAERR(err);
-#ifdef HAVE_GPU_AWARE_MPI
-  std::cout << "Using GPU aware MPI." << std::endl;
-#endif
 #endif
 
   // Set up the GS data.
@@ -331,7 +328,7 @@ class TxMatrixOptimizationDataCURegistration {
   public:
     TxMatrixOptimizationDataCURegistration() :
       b(new TxMatrixOptimizationDataCU, new TxVectorOptimizationDataCU) {
-        BackendRegistry::addBackend("Tech-X CUDA backend", b);
+        BackendRegistry::getInstance()->addBackend("Tech-X CUDA backend", b);
       }
   private:
     Backend b;

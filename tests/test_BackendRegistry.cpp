@@ -10,7 +10,7 @@ class BackendRegistryFixture {
     BackendRegistryFixture() {
       matbe = new int;
       vecbe = new int;
-      BackendRegistry::addBackend("Foo", 
+      BackendRegistry::getInstance()->addBackend("Foo", 
           Backend((TxMatrixOptimizationDataBase*)matbe,
             (TxVectorOptimizationDataBase*)vecbe));
     }
@@ -31,10 +31,10 @@ BOOST_AUTO_TEST_CASE(AddBackend) {
 }
 
 BOOST_AUTO_TEST_CASE(GetBackend) {
-  Backend be = BackendRegistry::getBackend("Bar");
+  Backend be = BackendRegistry::getInstance()->getBackend("Bar");
   BOOST_CHECK(be.getMatOptData() == 0);
   BOOST_CHECK(be.getVecOptData() == 0);
-  be = BackendRegistry::getBackend("Foo");
+  be = BackendRegistry::getInstance()->getBackend("Foo");
   BOOST_CHECK(be.getMatOptData() != 0);
   BOOST_CHECK(be.getVecOptData() != 0);
 }

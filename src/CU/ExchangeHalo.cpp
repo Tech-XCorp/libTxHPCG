@@ -104,7 +104,7 @@ void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
       (TxVectorOptimizationDataCU *)x.optimizationData;
   cudaError_t cerr;
   local_int_t numRecvd = A.localNumberOfColumns - A.localNumberOfRows;
-  cerr = cudaMemcpy(vOptData->devicePtr + A.localNumberOfRows,
+  cerr = cudaMemcpy((double*)vOptData->getDevicePtr() + A.localNumberOfRows,
                     x.values + A.localNumberOfRows, numRecvd * sizeof(double),
                     cudaMemcpyHostToDevice);
   CHKCUDAERR(cerr);

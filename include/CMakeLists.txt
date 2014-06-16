@@ -1,6 +1,5 @@
 set(TxHPCG_HEADERS
     BackendFactory.hpp
-    CPCSR.hpp
     ComputeDotProduct.hpp
     ComputeMG.hpp
     ComputeProlongation.hpp
@@ -8,7 +7,6 @@ set(TxHPCG_HEADERS
     ComputeSPMV.hpp
     ComputeSYMGS.hpp
     ComputeWAXPBY.hpp
-    ExchangeHalo.hpp
     TxVectorOptimizationDataBase.hpp
     TxMatrixOptimizationDataBase.hpp
    )

@@ -24,6 +24,9 @@
 #include <BackendFactory.hpp>
 #include <config.h>
 
+#include <stdexcept>
+
+
 int setUpLocalMatrixOnGPU(SparseMatrix& A);
 int initializeCusparse(SparseMatrix& A);
 

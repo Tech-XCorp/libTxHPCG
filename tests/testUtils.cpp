@@ -5,6 +5,8 @@
 #include <mpi.h>
 #endif
 #include <cstring>
+#include <cmath>
+#include <sstream>
 
 
 void GenerateProblem(SparseMatrix &A, Vector *b, Vector *x, Vector *xexact) {

@@ -1,4 +1,5 @@
 set(TxHPCG_HEADERS
+    BackendFactory.hpp
     CPCSR.hpp
     ComputeDotProduct.hpp
     ComputeMG.hpp
@@ -8,6 +9,8 @@ set(TxHPCG_HEADERS
     ComputeSYMGS.hpp
     ComputeWAXPBY.hpp
     ExchangeHalo.hpp
+    TxVectorOptimizationDataBase.hpp
+    TxMatrixOptimizationDataBase.hpp
    )
 
 install(FILES ${TxHPCG_HEADERS} DESTINATION include)

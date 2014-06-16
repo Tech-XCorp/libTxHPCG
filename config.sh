@@ -1,3 +1,4 @@
+
 SCRATCH=/lustre/atlas/scratch/dmeiser/fus048
 cmake \
   -DHPCG_SOURCE_DIR=${SCRATCH}/HPCG/src/ \

@@ -22,7 +22,7 @@
 
 #include <TxMatrixOptimizationDataBase.hpp>
 #include <BackendFactory.hpp>
-#include <config.h>
+#include <TxHPCG_config.h>
 
 #include <stdexcept>
 
@@ -51,10 +51,10 @@ int OptimizeProblem(SparseMatrix &A, CGData &data, Vector &b, Vector &x,
   SparseMatrix* m = &A;
   while (m) {
     TxMatrixOptimizationDataBase *optimizationData = 
-      getMatrixOptimizationData(BACKEND_TO_USE);
+      getMatrixOptimizationData(OPTIMIZED_BACKEND_NAME);
     if (!optimizationData) {
       throw std::runtime_error(std::string("Unknown backend \"") +
-          std::string(BACKEND_TO_USE) + std::string("\"."));
+          std::string(OPTIMIZED_BACKEND_NAME) + std::string("\"."));
     }
     err = optimizationData->ingestLocalMatrix(*m);
     m->optimizationData = optimizationData;

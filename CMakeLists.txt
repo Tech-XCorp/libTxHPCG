@@ -94,7 +94,9 @@ if(BUILD_OCL_TXHPCG)
   include_directories(SYSTEM ${OpenCL_INCLUDE_DIRS})
 endif()
 
-configure_file(${CMAKE_SOURCE_DIR}/config-cmake.h.in config.h)
+configure_file(${CMAKE_SOURCE_DIR}/config-cmake.h.in
+    ${CMAKE_PROJECT_NAME}_config.h)
+
 
 add_subdirectory(include)
 add_subdirectory(src)

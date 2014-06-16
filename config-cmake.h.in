@@ -1,3 +1,6 @@
+#ifndef LIB_TX_HPCG_CONFIG_H
+#define LIB_TX_HPCG_CONFIG_H
+
 // defined if we have MPI
 #cmakedefine HAVE_MPI
 
@@ -12,3 +15,4 @@
 // The optimized backend to use (see BackendFactory.hpp for available choices)
 #cmakedefine OPTIMIZED_BACKEND_NAME "@OPTIMIZED_BACKEND_NAME@"
 
+#endif

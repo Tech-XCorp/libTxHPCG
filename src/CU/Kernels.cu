@@ -1,7 +1,7 @@
 #include "KernelWrappers.h"
 #include <numeric>
 #include <vector>
-#include <chkcudaerror.hpp>
+#include <CU/chkcudaerror.hpp>
 
 #define MAX_REDUCTION_SIZE 128
 

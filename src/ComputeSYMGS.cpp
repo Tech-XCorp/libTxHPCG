@@ -21,7 +21,7 @@
 #include "ComputeSYMGS.hpp"
 #include "ComputeSYMGS_ref.hpp"
 
-#include "MatrixOptimizationDataTx.hpp"
+#include "TxMatrixOptimizationDataBase.hpp"
 #include "cuGelus.h"
 
 /*!
@@ -50,7 +50,7 @@
 */
 int ComputeSYMGS( const SparseMatrix & A, const Vector & x, Vector & y,
     int numberOfSmootherSteps, bool copyIn, bool copyOut) {
-  MatrixOptimizationDataTx* optData =
-      (MatrixOptimizationDataTx*)A.optimizationData;
+  TxMatrixOptimizationDataBase* optData =
+      (TxMatrixOptimizationDataBase*)A.optimizationData;
   return optData->ComputeSYMGS(A, x, y, numberOfSmootherSteps, copyIn, copyOut);
 }

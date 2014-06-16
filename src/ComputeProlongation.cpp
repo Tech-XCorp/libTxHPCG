@@ -1,11 +1,11 @@
 #include "ComputeProlongation.hpp"
 
-#include "MatrixOptimizationDataTx.hpp"
+#include "TxMatrixOptimizationDataBase.hpp"
 
 int ComputeProlongation(const SparseMatrix& Af, Vector& xf, bool copyIn,
                         bool copyOut)
 {
-  MatrixOptimizationDataTx* optData =
-      (MatrixOptimizationDataTx*)Af.optimizationData;
+  TxMatrixOptimizationDataBase* optData =
+    (TxMatrixOptimizationDataBase*)Af.optimizationData;
   return optData->ComputeProlongation(Af, xf, copyIn, copyOut);
 }

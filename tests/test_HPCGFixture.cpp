@@ -4,8 +4,7 @@
 #include "HPCGFixture.hpp"
 #include "MPIFixture.hpp"
 #include "Geometry.hpp"
-
-#include <config.h>
+#include "BackendFactory.hpp"
 
 BOOST_GLOBAL_FIXTURE(MPIFixture);
 

@@ -9,23 +9,12 @@
 #  Gelus_LIBRARIES    = Required libraries
 ######################################################################
 
-if (WIN32)
-  set(GELUS_LIB_PREFIX "")
-else (WIN32)
-  set(GELUS_LIB_PREFIX "lib")
-endif (WIN32)
-
-if (WIN32)
-  set(GELUS_LIB_SUFFIX "lib")
-else (WIN32)
-  set(GELUS_LIB_SUFFIX "a")
-endif (WIN32)
-
 SciFindPackage(PACKAGE "Gelus"
               INSTALL_DIR "gelus"
               HEADERS "cuGelus.h"
-              LIBRARIES "${GELUS_LIB_PREFIX}gelus.${GELUS_LIB_SUFFIX}"
+              LIBRARIES "cugelus;gelusbase"
               )
+message(STATUS "Gelus_LIBRARIES==${Gelus_LIBRARIES}")
 
 if (GELUS_FOUND)
   message(STATUS "Found Gelus")

@@ -19,9 +19,9 @@
 #include <cstdlib>
 #include <vector>
 #include "KernelWrappers.h"
-#include <chkcudaerror.hpp>
-#include <MatrixOptimizationDataTx.hpp>
-#include <VectorOptimizationDataTx.hpp>
+#include <CU/chkcudaerror.hpp>
+#include <CU/TxMatrixOptimizationDataCU.hpp>
+#include <CU/TxVectorOptimizationDataCU.hpp>
 #include <config.h>
 
 struct DataTransfer_ {
@@ -36,7 +36,7 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   int *neighbors = A.neighbors;
 #ifdef HAVE_GPU_AWARE_MPI
   double *sendBuffer =
-      ((MatrixOptimizationDataTx *)A.optimizationData)->getSendBuffer_d();
+      ((TxMatrixOptimizationDataCU *)A.optimizationData)->getSendBuffer_d();
 #else
   double *sendBuffer = A.sendBuffer;
 #endif
@@ -52,10 +52,10 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
   transfer->requests.resize(2 * num_neighbors);
   MPI_Request *request = transfer->requests.data();
 
-  VectorOptimizationDataTx *vOptData =
-    (VectorOptimizationDataTx*)x.optimizationData;
+  TxVectorOptimizationDataCU *vOptData =
+    (TxVectorOptimizationDataCU*)x.optimizationData;
 #ifdef HAVE_GPU_AWARE_MPI
-  double *x_external = vOptData->devicePtr + localNumberOfRows;
+  double *x_external = (double*)vOptData->getDevicePtr() + localNumberOfRows;
 #else
   double *x_external = x.values + localNumberOfRows;
 #endif
@@ -69,9 +69,9 @@ DataTransfer BeginExchangeHalo(const SparseMatrix &A, Vector &x) {
     x_external += n_recv;
   }
 
-  MatrixOptimizationDataTx *optData =
-      (MatrixOptimizationDataTx *)A.optimizationData;
-  launchScatter(optData->getSendBuffer_d(), vOptData->devicePtr,
+  TxMatrixOptimizationDataCU *optData =
+      (TxMatrixOptimizationDataCU *)A.optimizationData;
+  launchScatter(optData->getSendBuffer_d(), (const double*)vOptData->getDevicePtr(),
                 optData->getElementsToSend_d(), totalToBeSent);
 #ifdef HAVE_GPU_AWARE_MPI
 #else
@@ -100,11 +100,11 @@ void EndExchangeHalo(const SparseMatrix &A, Vector &x, DataTransfer transfer) {
   delete transfer;
 #ifdef HAVE_GPU_AWARE_MPI
 #else
-  VectorOptimizationDataTx *vOptData =
-      (VectorOptimizationDataTx *)x.optimizationData;
+  TxVectorOptimizationDataCU *vOptData =
+      (TxVectorOptimizationDataCU *)x.optimizationData;
   cudaError_t cerr;
   local_int_t numRecvd = A.localNumberOfColumns - A.localNumberOfRows;
-  cerr = cudaMemcpy(vOptData->devicePtr + A.localNumberOfRows,
+  cerr = cudaMemcpy((double*)vOptData->getDevicePtr() + A.localNumberOfRows,
                     x.values + A.localNumberOfRows, numRecvd * sizeof(double),
                     cudaMemcpyHostToDevice);
   CHKCUDAERR(cerr);

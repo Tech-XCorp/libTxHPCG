@@ -1,29 +1,27 @@
 #include <ComputeWAXPBY.hpp>
-#include <KernelWrappers.h>
-#include "VectorOptimizationDataTx.hpp"
-#include "chkcudaerror.hpp"
+#include "TxVectorOptimizationDataBase.hpp"
 
 int ComputeWAXPBY(const local_int_t n, const double alpha, const Vector & x,
     const double beta, const Vector & y, Vector & w, bool & isOptimized,
     bool copyIn, bool copyOut)
 {
   isOptimized = true;
-  const double* x_d;
-  const double* y_d;
-  double* w_d = ((VectorOptimizationDataTx*)w.optimizationData)->devicePtr;
+  const void* x_d;
+  const void* y_d;
+  void* w_d = ((TxVectorOptimizationDataBase*)w.optimizationData)->getDevicePtr();
   if (copyIn) {
-    x_d = transferDataToGPU(x);
-    y_d = transferDataToGPU(y);
+    transferDataToDevice(x);
+    x_d = ((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    transferDataToDevice(y);
+    y_d = ((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
   } else {
-    x_d = ((VectorOptimizationDataTx*)x.optimizationData)->devicePtr;
-    y_d = ((VectorOptimizationDataTx*)y.optimizationData)->devicePtr;
+    x_d = ((TxVectorOptimizationDataBase*)x.optimizationData)->getDevicePtr();
+    y_d = ((TxVectorOptimizationDataBase*)y.optimizationData)->getDevicePtr();
   }
-  launchComputeWAXPBY(n, alpha, x_d, beta, y_d, w_d);
+  ((const TxVectorOptimizationDataBase*)w.optimizationData)->computeWAXPBY(
+    n, alpha, x_d, beta, y_d, w_d);
   if (copyOut) {
-    transferDataFromGPU(w);
-  } else {
-    cudaError_t cerr = cudaDeviceSynchronize();
-    CHKCUDAERR(cerr);
+    transferDataFromDevice(w);
   }
   return 0;
 }

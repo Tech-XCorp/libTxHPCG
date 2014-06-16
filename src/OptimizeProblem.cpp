@@ -18,16 +18,17 @@
  HPCG routine
  */
 
-#include "OptimizeProblem.hpp"
+#include <OptimizeProblem.hpp>
 
-#include "MatrixOptimizationDataTx.hpp"
-#include "VectorOptimizationDataTx.hpp"
-#include <cusparse_v2.h>
-#include <cuda_runtime.h>
-#include "chkcudaerror.hpp"
+#include <TxMatrixOptimizationDataBase.hpp>
+#include <BackendFactory.hpp>
+#include <TxHPCG_config.h>
 
-cusparseStatus_t setUpLocalMatrixOnGPU(SparseMatrix& A);
-cusparseStatus_t initializeCusparse(SparseMatrix& A);
+#include <stdexcept>
+
+
+int setUpLocalMatrixOnGPU(SparseMatrix& A);
+int initializeCusparse(SparseMatrix& A);
 
 /*!
   Optimizes the data structures used for CG iteration to increase the
@@ -49,8 +50,13 @@ int OptimizeProblem(SparseMatrix &A, CGData &data, Vector &b, Vector &x,
   int err = 0;
   SparseMatrix* m = &A;
   while (m) {
-    MatrixOptimizationDataTx *optimizationData = new MatrixOptimizationDataTx;
-    err = optimizationData->setupLocalMatrixOnGPU(*m);
+    TxMatrixOptimizationDataBase *optimizationData = 
+      getMatrixOptimizationData(OPTIMIZED_BACKEND_NAME);
+    if (!optimizationData) {
+      throw std::runtime_error(std::string("Unknown backend \"") +
+          std::string(OPTIMIZED_BACKEND_NAME) + std::string("\"."));
+    }
+    err = optimizationData->ingestLocalMatrix(*m);
     m->optimizationData = optimizationData;
     m = m->Ac;
   }

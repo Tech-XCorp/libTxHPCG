@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <cuda_runtime.h>
-#include <chkcudaerror.hpp>
+#include <CU/chkcudaerror.hpp>
 
 int constructorTest();
 int findDupTest();

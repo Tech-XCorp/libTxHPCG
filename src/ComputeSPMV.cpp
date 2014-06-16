@@ -18,14 +18,12 @@
  HPCG routine
  */
 
-#include <cuda_runtime.h>
 #include <iostream>
 
 #include "ComputeSPMV.hpp"
 #include "ComputeSPMV_ref.hpp"
-#include "VectorOptimizationDataTx.hpp"
-#include "MatrixOptimizationDataTx.hpp"
-#include "chkcudaerror.hpp"
+#include "TxVectorOptimizationDataBase.hpp"
+#include "TxMatrixOptimizationDataBase.hpp"
 
 /*!
   Routine to compute sparse matrix vector product y = Ax where:
@@ -44,8 +42,8 @@
   @see ComputeSPMV_ref
 */
 int ComputeSPMV(const SparseMatrix& A, Vector& x, Vector& y, bool copyIn, bool copyOut) {
-  MatrixOptimizationDataTx* optData =
-      (MatrixOptimizationDataTx*)A.optimizationData;
+  TxMatrixOptimizationDataBase* optData =
+      (TxMatrixOptimizationDataBase*)A.optimizationData;
   return optData->ComputeSPMV(A, x, y, copyIn, copyOut);
 }
 

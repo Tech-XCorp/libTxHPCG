@@ -1,52 +1,32 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(testUtils 
-    testUtils.cpp 
-    MPIFixture.cpp 
-    HPCGFixture.cpp
-    ${HPCG_SOURCE_DIR}/SetupHalo.cpp
-    ${HPCG_SOURCE_DIR}/ExchangeHalo.cpp
-    ${HPCG_SOURCE_DIR}/init.cpp
-    ${HPCG_SOURCE_DIR}/ReadHpcgDat.cpp
-    ${HPCG_SOURCE_DIR}/ComputeWAXPBY_ref.cpp
-    ${HPCG_SOURCE_DIR}/ComputeDotProduct_ref.cpp
-    ${HPCG_SOURCE_DIR}/mytimer.cpp
-    )
-
-set(TxHPCG_LIBS
-    TxHPCG)
-if(BUILD_CU_TXHPCG)
-  list(APPEND TxHPCG_LIBS CUTxHPCG)
-endif()
-if(BUILD_OCL_TXHPCG)
-  list(APPEND TxHPCG_LIBS OCLTXHPCG)
-endif()
-
-target_link_libraries(
-    testUtils 
-    ${TxHPCG_LIBS}
+add_library(testUtilsCU
+    testUtilsCU.cpp 
     )
 set(TxHPCG_TESTS
-    test_TestUtils
-    test_TxMatrixOptimizationDataBase
-    test_BackendRegistry
+    test_CPCSR
+    test_ComputeRestriction
+    test_ComputeProlongation
+    test_ComputeWAXPBY
    )
 set(TxHPCG_PAR_TESTS
-    test_HPCGFixture
-    test_MPI
-    test_MPIFixture
+    test_ComputeSPMV
+    test_ComputeSYMGS
+    test_ComputeMG
+    test_ComputeDotProduct
    )
 foreach(t ${TxHPCG_TESTS} ${TxHPCG_PAR_TESTS})
   add_executable(${t} ${t}.cpp)
   target_link_libraries(${t}
+      testUtilsCU
       testUtils
-      ${TxHPCG_LIBS}
+      TxHPCG
+      CUTxHPCG
+      ${Gelus_LIBRARIES}
+      ${CUDA_cusparse_LIBRARY}
+      ${CUDA_LIBRARIES}
       ${Boost_LIBRARIES}
       )
-  if(BUILD_CU_TXHPCG)
-    target_link_libraries(${t} ${CUDA_cusparse_LIBRARY}
-        ${CUDA_LIBRARIES})
-  endif()
 endforeach()
 foreach(t ${TxHPCG_TESTS})
   add_test(${t} ${t})
@@ -62,10 +42,4 @@ if (ENABLE_MEMCHECK)
   add_test(NAME "memtest_MPIFixture_2_proc" COMMAND  ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${VALGRIND_EXE} ./test_MPIFixture)
 endif ()
 
-if(BUILD_CU_TXHPCG)
-  add_subdirectory(CU)
-endif()
-if(BUILD_OCL_TXHPCG)
-  add_subdirectory(OCL)
-endif()
 

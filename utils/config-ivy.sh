@@ -2,7 +2,7 @@
 
 PATH="/src_ivy/dmeiser/PTSOLVE/bin:/scr_ivy/dmeiser/PTSOLVE/openmpi/bin:$PATH" \
     /scr_ivy/dmeiser/PTSOLVE/cmake/bin/cmake \
-    -DCMAKE_INSTALL_PREFIX:PATH=/scr_ivy/dmeiser/PTSOLVE/libTxHPCG \
+    -DCMAKE_INSTALL_PREFIX:PATH=/scr_ivy/dmeiser/PTSOLVE/TxHPCG \
     -DCMAKE_BUILD_TYPE:STRING=Release \
     -DENABLE_PARALLEL:BOOL=TRUE \
     -DENABLE_GPU_AWARE_MPI:BOOL=FALSE \
